@@ -1,0 +1,2 @@
+# Newstratbot
+Stratbot
