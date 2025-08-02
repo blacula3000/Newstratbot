@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Logs - Newstratbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .logs-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .back-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .logs-box {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 2px solid #2d3748;
+        }
+        
+        .log-line {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .log-info {
+            color: #63b3ed;
+        }
+        
+        .log-error {
+            color: #fc8181;
+            background: rgba(252, 129, 129, 0.1);
+        }
+        
+        .log-warning {
+            color: #f6e05e;
+        }
+        
+        .timestamp {
+            color: #a0aec0;
+        }
+        
+        .refresh-button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-button:hover {
+            background: #38a169;
+        }
+        
+        .no-logs {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Trading Logs</h1>
+            <p>Real-time trading activity and system events</p>
+        </div>
+        
+        <div class="logs-container">
+            <a href="/" class="back-button">← Back to Dashboard</a>
+            
+            <button class="refresh-button" onclick="location.reload()">🔄 Refresh Logs</button>
+            
+            <div class="logs-box">
+                {% if logs %}
+                    {% for log in logs %}
+                        <div class="log-line 
+                            {% if 'ERROR' in log %}log-error
+                            {% elif 'WARNING' in log %}log-warning
+                            {% elif 'INFO' in log %}log-info
+                            {% endif %}">
+                            {{ log|trim }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-logs">
+                        No logs available yet. Start the trading bot to see activity logs here.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 15px; color: #718096; font-size: 14px;">
+                <strong>Log Information:</strong><br>
+                • Real-time trading signals and pattern detections<br>
+                • System status updates and error messages<br>
+                • Automatic refresh available - logs update as events occur<br>
+                • Logs are stored in <code>trading_bot.log</code>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh logs every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+        
+        // Scroll to bottom of logs
+        window.onload = function() {
+            const logsBox = document.querySelector('.logs-box');
+            logsBox.scrollTop = logsBox.scrollHeight;
+        };
+    </script>
+</body>
+</html>

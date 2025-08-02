@@ -1,0 +1,8 @@
+Flask==2.3.3
+Flask-SocketIO==5.3.6
+pandas==2.1.1
+numpy==1.24.3
+yfinance==0.2.22
+python-socketio==5.8.0
+python-engineio==4.7.1
+eventlet==0.33.3

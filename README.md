@@ -1,5 +1,129 @@
-# Newstratbot
+# 🤖 Newstratbot - Advanced Trading Bot
 
+A sophisticated Python trading bot with real-time candlestick pattern detection and **web interface dashboard**.
+
+## ✨ Features
+
+- 🎯 **Real-time Pattern Detection**: Bullish and bearish reversal patterns
+- 📊 **Web Dashboard**: Modern, responsive interface with live updates
+- 📈 **Multiple Timeframes**: 1m, 5m, 15m, 1h intervals
+- 📋 **Live Logging**: Real-time trading logs and system events
+- 🔄 **Auto-refresh**: 30-second update intervals
+- 💰 **Multi-symbol Support**: Any stock symbol (SPY, AAPL, etc.)
+
+## 🚀 Quick Start
+
+### Option 1: Web Interface (Recommended)
+
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Start Web Server**:
+   ```bash
+   python app.py
+   ```
+
+3. **Open Dashboard**:
+   - Navigate to: `http://localhost:5000`
+   - Enter stock symbol (e.g., SPY)
+   - Select timeframe
+   - Click "🚀 Start Bot"
+
+### Option 2: Console Version
+
+```bash
+python trading_bot.py
+```
+
+## 📱 Web Interface Screenshots
+
+The web dashboard includes:
+- **Control Panel**: Start/stop bot with custom symbols and timeframes
+- **Real-time Price Display**: Live market data updates
+- **Signal Detection**: Visual indicators for bullish/bearish patterns
+- **Trading Logs**: Comprehensive activity logging
+- **Status Monitoring**: Bot status and connection indicators
+
+## 🔧 Installation
+
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/blacula3000/Newstratbot.git
+   cd Newstratbot
+   ```
+
+2. **Install Requirements**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run Application**:
+   ```bash
+   python app.py
+   ```
+
+## 📊 Technical Details
+
+### Pattern Detection
+- **Bullish Reversal**: Previous red candle + current green candle + lower low
+- **Bearish Reversal**: Previous green candle + current red candle + higher high
+
+### Data Source
+- **Yahoo Finance API** via `yfinance` library
+- Real-time market data
+- Historical candlestick data
+
+### Technology Stack
+- **Backend**: Flask + SocketIO for real-time updates
+- **Frontend**: Modern HTML5 + CSS3 + JavaScript
+- **Data**: Pandas + NumPy for analysis
+- **Logging**: Python logging module
+
+## 🌐 Web Interface Features
+
+- **Real-time Updates**: WebSocket connections for instant data
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Interactive Controls**: Start/stop bot with custom parameters
+- **Visual Signals**: Color-coded trading alerts
+- **Log Viewer**: Dedicated page for trading activity logs
+
+## 📝 Usage Examples
+
+### Web Interface
+1. Open `http://localhost:5000`
+2. Enter symbol: `AAPL`
+3. Select timeframe: `5m`
+4. Click "Start Bot"
+5. Monitor real-time signals and price updates
+
+### Console
+```python
+bot = TradingBot(symbol="SPY", timeframe="5m")
+bot.run()
+```
+
+## 🔍 Monitoring
+
+- **Live Dashboard**: Real-time price and signal updates
+- **Trading Logs**: Accessible via web interface at `/logs`
+- **System Status**: Visual indicators for bot status
+- **Error Handling**: Automatic retry and error logging
+
+## 🤝 Contributing
+
+Feel free to submit issues, fork the repository, and create pull requests for improvements.
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+---
+
+## Original Console Code:
+
+```python
 import pandas as pd
 import numpy as np
 import yfinance as yf
