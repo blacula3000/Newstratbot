@@ -1,0 +1,138 @@
+//@version=5
+indicator("The Strat Crypto Indicator with Alerts", overlay=true)
+
+// Input parameters
+showBarNumbers = input.bool(true, "Show Bar Numbers")
+showPatterns = input.bool(true, "Show Pattern Labels")
+alertOnPatterns = input.bool(true, "Enable Pattern Alerts")
+webhookUrl = input.string("http://localhost:5001/webhook/tradingview", "Webhook URL")
+
+// Function to classify bars according to The Strat
+classifyBar(highs, lows, currentIndex) =>
+    if currentIndex < 1
+        0
+    else
+        prevHigh = highs[currentIndex - 1]
+        prevLow = lows[currentIndex - 1]
+        currHigh = highs[currentIndex]
+        currLow = lows[currentIndex]
+        
+        higherHigh = currHigh > prevHigh
+        lowerHigh = currHigh < prevHigh
+        higherLow = currLow > prevLow
+        lowerLow = currLow < prevLow
+        
+        // Scenario 1: Inside bar
+        if lowerHigh and higherLow
+            1
+        // Scenario 3: Outside bar
+        else if higherHigh and lowerLow
+            3
+        // Scenario 2: Directional bars
+        else if higherHigh
+            2  // Up
+        else if lowerLow
+            -2 // Down
+        else
+            1  // Default to inside if equal
+
+// Classify current and previous bars
+currentBarType = classifyBar(high, low, bar_index)
+prevBarType = bar_index > 0 ? classifyBar(high, low, bar_index - 1) : 0
+prevPrevBarType = bar_index > 1 ? classifyBar(high, low, bar_index - 2) : 0
+
+// Display bar numbers
+if showBarNumbers
+    barText = currentBarType == 1 ? "1" : currentBarType == 3 ? "3" : currentBarType == 2 ? "2↑" : currentBarType == -2 ? "2↓" : ""
+    barColor = currentBarType == 1 ? color.gray : currentBarType == 3 ? color.purple : currentBarType == 2 ? color.green : currentBarType == -2 ? color.red : color.gray
+    
+    label.new(bar_index, high * 1.001, barText, 
+              color=color.new(barColor, 80), 
+              textcolor=barColor, 
+              style=label.style_label_down, 
+              size=size.small)
+
+// Pattern detection
+is_2_2_bullish = prevBarType == -2 and currentBarType == 2 and close > high[1]
+is_2_2_bearish = prevBarType == 2 and currentBarType == -2 and close < low[1]
+
+is_3_1_2_bullish = prevPrevBarType == 3 and prevBarType == 1 and currentBarType == 2 and close > high[2]
+is_3_1_2_bearish = prevPrevBarType == 3 and prevBarType == 1 and currentBarType == -2 and close < low[2]
+
+is_1_2_2_bullish = prevPrevBarType == 1 and prevBarType == 2 and currentBarType == 2 and close > high[1]
+is_1_2_2_bearish = prevPrevBarType == 1 and prevBarType == -2 and currentBarType == -2 and close < low[1]
+
+// Multi-timeframe continuity
+htf_5m = request.security(syminfo.tickerid, "5", close)
+htf_15m = request.security(syminfo.tickerid, "15", close)
+htf_1h = request.security(syminfo.tickerid, "60", close)
+htf_4h = request.security(syminfo.tickerid, "240", close)
+
+ma_5m = ta.sma(htf_5m, 20)
+ma_15m = ta.sma(htf_15m, 20)
+ma_1h = ta.sma(htf_1h, 20)
+ma_4h = ta.sma(htf_4h, 20)
+
+bullish_continuity = htf_5m > ma_5m and htf_15m > ma_15m and htf_1h > ma_1h
+bearish_continuity = htf_5m < ma_5m and htf_15m < ma_15m and htf_1h < ma_1h
+
+// Display pattern labels
+if showPatterns
+    if is_2_2_bullish
+        label.new(bar_index, low * 0.999, "2-2 Bullish", 
+                  color=color.new(color.green, 80), 
+                  textcolor=color.green, 
+                  style=label.style_label_up, 
+                  size=size.normal)
+    
+    if is_2_2_bearish
+        label.new(bar_index, high * 1.001, "2-2 Bearish", 
+                  color=color.new(color.red, 80), 
+                  textcolor=color.red, 
+                  style=label.style_label_down, 
+                  size=size.normal)
+    
+    if is_3_1_2_bullish
+        label.new(bar_index, low * 0.998, "3-1-2 Bullish\n⭐⭐⭐", 
+                  color=color.new(color.green, 70), 
+                  textcolor=color.green, 
+                  style=label.style_label_up, 
+                  size=size.large)
+    
+    if is_3_1_2_bearish
+        label.new(bar_index, high * 1.002, "3-1-2 Bearish\n⭐⭐⭐", 
+                  color=color.new(color.red, 70), 
+                  textcolor=color.red, 
+                  style=label.style_label_down, 
+                  size=size.large)
+
+// Alert conditions with webhook JSON
+alertMessage(action, pattern) =>
+    '{"symbol":"' + syminfo.ticker + '","price":"' + str.tostring(close) + '","action":"' + action + '","pattern":"' + pattern + '","timeframe":"' + timeframe.period + '","exchange":"' + syminfo.prefix + '"}'
+
+// Alerts
+if alertOnPatterns
+    if is_2_2_bullish and bullish_continuity
+        alert(alertMessage("buy", "2_2_REVERSAL"), alert.freq_once_per_bar)
+    
+    if is_2_2_bearish and bearish_continuity
+        alert(alertMessage("sell", "2_2_REVERSAL"), alert.freq_once_per_bar)
+    
+    if is_3_1_2_bullish
+        alert(alertMessage("buy", "3_1_2_COMBO"), alert.freq_once_per_bar)
+    
+    if is_3_1_2_bearish
+        alert(alertMessage("sell", "3_1_2_COMBO"), alert.freq_once_per_bar)
+    
+    if is_1_2_2_bullish and bullish_continuity
+        alert(alertMessage("buy", "1_2_2_CONTINUATION"), alert.freq_once_per_bar)
+    
+    if is_1_2_2_bearish and bearish_continuity
+        alert(alertMessage("sell", "1_2_2_CONTINUATION"), alert.freq_once_per_bar)
+
+// Plot support/resistance levels
+plot(high[1], color=color.new(color.blue, 80), linewidth=1, title="Previous High")
+plot(low[1], color=color.new(color.blue, 80), linewidth=1, title="Previous Low")
+
+// Background color for timeframe continuity
+bgcolor(bullish_continuity ? color.new(color.green, 95) : bearish_continuity ? color.new(color.red, 95) : na)

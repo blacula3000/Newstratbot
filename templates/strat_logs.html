@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Strat Trading Bot - Logs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #e4e8f7;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .logs-container {
+            background: #1a1f3a;
+            border: 1px solid #2a3f5f;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #2a3f5f;
+        }
+        
+        .logs-header h2 {
+            color: #4a90e2;
+            font-size: 1.5em;
+        }
+        
+        .log-entries {
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+        
+        .log-entry:hover {
+            background: #0a0e27;
+        }
+        
+        .log-entry.info {
+            color: #3a7bd5;
+        }
+        
+        .log-entry.error {
+            color: #f5576c;
+            background: rgba(245, 87, 108, 0.1);
+        }
+        
+        .log-entry.signal {
+            color: #00d2ff;
+            background: rgba(0, 210, 255, 0.1);
+            font-weight: bold;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(58, 123, 213, 0.4);
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-btn {
+            padding: 6px 12px;
+            background: #2a3f5f;
+            border: 1px solid #3a4f6f;
+            color: #e4e8f7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85em;
+        }
+        
+        .filter-btn:hover {
+            background: #3a4f6f;
+        }
+        
+        .filter-btn.active {
+            background: #4a90e2;
+            border-color: #4a90e2;
+        }
+        
+        /* Custom scrollbar */
+        .log-entries::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .log-entries::-webkit-scrollbar-track {
+            background: #0a0e27;
+            border-radius: 5px;
+        }
+        
+        .log-entries::-webkit-scrollbar-thumb {
+            background: #2a3f5f;
+            border-radius: 5px;
+        }
+        
+        .log-entries::-webkit-scrollbar-thumb:hover {
+            background: #3a4f6f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 The Strat Trading Bot - Logs</h1>
+            <p>Detailed Trading Activity & Signal History</p>
+        </div>
+        
+        <div class="logs-container">
+            <div class="logs-header">
+                <h2>Trading Activity Logs</h2>
+                <div class="filter-controls">
+                    <button class="filter-btn active" onclick="filterLogs('all')">All</button>
+                    <button class="filter-btn" onclick="filterLogs('signals')">Signals Only</button>
+                    <button class="filter-btn" onclick="filterLogs('errors')">Errors</button>
+                </div>
+            </div>
+            
+            <div class="log-entries" id="log-entries">
+                {% for log in logs %}
+                    {% if 'Strat Signal' in log or 'pattern' in log %}
+                        <div class="log-entry signal">{{ log.strip() }}</div>
+                    {% elif 'ERROR' in log or 'Error' in log %}
+                        <div class="log-entry error">{{ log.strip() }}</div>
+                    {% else %}
+                        <div class="log-entry info">{{ log.strip() }}</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="/" class="back-link">← Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <script>
+        function filterLogs(type) {
+            const entries = document.querySelectorAll('.log-entry');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter entries
+            entries.forEach(entry => {
+                if (type === 'all') {
+                    entry.style.display = 'block';
+                } else if (type === 'signals' && entry.classList.contains('signal')) {
+                    entry.style.display = 'block';
+                } else if (type === 'errors' && entry.classList.contains('error')) {
+                    entry.style.display = 'block';
+                } else if (type !== 'all') {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+        
+        // Auto-scroll to bottom on load
+        window.onload = function() {
+            const logContainer = document.getElementById('log-entries');
+            logContainer.scrollTop = logContainer.scrollHeight;
+        };
+    </script>
+</body>
+</html>

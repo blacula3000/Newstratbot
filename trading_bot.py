@@ -4,12 +4,24 @@ import threading
 import time
 import yfinance as yf
 import pandas as pd
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("logs/trading_bot.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 class TradingBot:
     def __init__(self, market_type="futures", timeframe="1h", config=None):
         self.market_type = market_type
         self.timeframe = timeframe
-        self.config = config
+        self.config = config or {}
         self.stop_losses = {}  # Track stop losses for positions
         self.take_profits = {}  # Track take profits for positions
         self.max_positions = 3  # Maximum concurrent positions
@@ -17,6 +29,8 @@ class TradingBot:
         self.stop_trading = False
         self.trading_lock = threading.Lock()
         self.pattern_history = []  # Store detected patterns
+        self._historical_data = {}
+        self.active_trades = []
 
     def get_current_price(self, symbol):
         """Get current price for a symbol."""
@@ -295,4 +309,4 @@ if __name__ == "__main__":
 
     # Test with paper trading first
     symbols = ["BTC/USDT", "ETH/USDT"]
-    bot.run(symbols, interval=300) 
+    bot.run(symbols, interval=300)
