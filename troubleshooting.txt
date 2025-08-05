@@ -1,0 +1,22 @@
+1. TA-Lib Installation Error:
+   - Download correct wheel file from UCI
+   - Match Python version exactly
+   - Install Visual C++ Build Tools if needed
+
+2. Connection Errors:
+   - Check API keys in .env
+   - Verify internet connection
+   - Confirm API endpoint URLs
+   - Check firewall settings
+
+3. Data Display Issues:
+   - Clear browser cache
+   - Check browser console for errors
+   - Verify WebSocket connections
+   - Check JavaScript console logs
+
+4. Performance Issues:
+   - Reduce update intervals
+   - Check system resources
+   - Monitor memory usage
+   - Optimize database queries 

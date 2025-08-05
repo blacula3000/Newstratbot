@@ -1,0 +1,83 @@
+# Environment variables and secrets
+.env
+*.env
+.env.local
+.env.production
+
+# API Keys and sensitive configuration
+config.json
+secrets.json
+api_keys.txt
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+dist/
+build/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Trading data and cache
+*.csv
+*.json
+historical_data/
+data/
+cache/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# SSL certificates and keys
+*.pem
+*.key
+*.crt
+*.cert
+
+# Node modules (if any JavaScript components)
+node_modules/
+
+# Coverage reports
+htmlcov/
+.coverage
+.pytest_cache/

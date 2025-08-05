@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2962ff;
+            --success-color: #00c853;
+            --danger-color: #ff1744;
+            --warning-color: #ffd600;
+            --dark-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1rem 1.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .status-active {
+            background-color: var(--success-color);
+            box-shadow: 0 0 10px var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 10px var(--danger-color);
+        }
+
+        .trade-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .pattern-item {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .buy-signal {
+            background-color: rgba(0, 200, 83, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .sell-signal {
+            background-color: rgba(255, 23, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .hold-signal {
+            background-color: rgba(255, 214, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .btn-control {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h1 class="mb-4">Trading Bot Dashboard</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Status and Controls -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <span id="status-indicator" class="status-indicator status-inactive"></span>
+                            <span id="status-text">Inactive</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-control" id="start-btn">Start Bot</button>
+                            <button class="btn btn-danger btn-control" id="stop-btn" disabled>Stop Bot</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-wallet'></i>
+                                    <h3>Balance</h3>
+                                    <div class="stat-value" id="balance">0 USDT</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-trending-up'></i>
+                                    <h3>Active Trades</h3>
+                                    <div class="stat-value" id="trades-count">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Trades -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Active Trades</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="active-trades"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pattern History -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Pattern History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="pattern-history"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Overview -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Market Overview</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <i class='bx bx-bitcoin'></i>
+                                    <h3>BTC Price</h3>
+                                    <div class="stat-value" id="btc-price">Loading...</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <i class='bx bx-line-chart'></i>
+                                    <h3>24h Change</h3>
+                                    <div class="stat-value" id="price-change">Loading...</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <i class='bx bx-transfer-alt'></i>
+                                    <h3>24h Volume</h3>
+                                    <div class="stat-value" id="volume">Loading...</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <i class='bx bx-pulse'></i>
+                                    <h3>Market Mode</h3>
+                                    <div class="stat-value" id="market-mode">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add after Market Overview section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>Price Chart</h3>
+                        <div>
+                            <button class="btn btn-outline-light btn-sm" onclick="changeTimeframe('1h')">1H</button>
+                            <button class="btn btn-outline-light btn-sm" onclick="changeTimeframe('4h')">4H</button>
+                            <button class="btn btn-outline-light btn-sm" onclick="changeTimeframe('1d')">1D</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Trade History section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Trade History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Symbol</th>
+                                        <th>Type</th>
+                                        <th>Entry</th>
+                                        <th>Exit</th>
+                                        <th>Size</th>
+                                        <th>PnL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trade-history">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add after Market Overview section -->
+        <div class="row mt-4">
+            <!-- Performance Metrics -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Performance Metrics</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-trophy'></i>
+                                    <h3>Win Rate</h3>
+                                    <div class="stat-value" id="win-rate">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-trending-up'></i>
+                                    <h3>Avg Profit</h3>
+                                    <div class="stat-value" id="avg-profit">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-chart'></i>
+                                    <h3>Profit Factor</h3>
+                                    <div class="stat-value" id="profit-factor">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-down-arrow-circle'></i>
+                                    <h3>Max Drawdown</h3>
+                                    <div class="stat-value" id="max-drawdown">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Management -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Risk Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-shield'></i>
+                                    <h3>Exposure</h3>
+                                    <div class="stat-value" id="total-exposure">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <i class='bx bx-wallet'></i>
+                                    <h3>Margin Ratio</h3>
+                                    <div class="stat-value" id="margin-ratio">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress mt-4" style="height: 25px; background-color: rgba(255,255,255,0.1);">
+                            <div class="progress-bar" id="position-usage" role="progressbar" style="width: 0%">
+                                0/3 Positions
+                            </div>
+                        </div>
+                        <div class="alert alert-warning mt-3" id="risk-alerts" style="display: none;">
+                            <!-- Risk alerts will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add after existing Risk Management section -->
+        <div class="row mt-4">
+            <!-- Advanced Risk Metrics -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Advanced Risk Metrics</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h3>Daily Loss Limit</h3>
+                                    <div class="progress" style="height: 15px;">
+                                        <div id="daily-loss-progress" class="progress-bar bg-danger" role="progressbar"></div>
+                                    </div>
+                                    <small id="daily-loss-text">0% of 5% limit</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stat-card">
+                                    <h3>Max Drawdown</h3>
+                                    <div class="progress" style="height: 15px;">
+                                        <div id="drawdown-progress" class="progress-bar bg-warning" role="progressbar"></div>
+                                    </div>
+                                    <small id="drawdown-text">0% of 15% limit</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h4>Position Risk Distribution</h4>
+                            <canvas id="risk-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Settings -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Risk Settings</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="risk-settings-form">
+                            <div class="mb-3">
+                                <label>Risk Per Trade (%)</label>
+                                <input type="number" class="form-control" id="risk-per-trade" min="0.1" max="5" step="0.1">
+                            </div>
+                            <div class="mb-3">
+                                <label>Max Drawdown Limit (%)</label>
+                                <input type="number" class="form-control" id="max-drawdown-limit" min="5" max="25" step="1">
+                            </div>
+                            <div class="mb-3">
+                                <label>Daily Loss Limit (%)</label>
+                                <input type="number" class="form-control" id="daily-loss-limit" min="1" max="10" step="0.5">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Update Settings</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Charts -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Equity Curve</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="equity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Win/Loss Distribution</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="win-loss-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Monthly Performance</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthly-performance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update intervals
+        const STATUS_INTERVAL = 5000;  // 5 seconds
+        const PATTERN_INTERVAL = 10000;  // 10 seconds
+
+        // Start bot with configuration
+        document.getElementById('start-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        symbols: ['BTCUSDT'],
+                        timeframe: '1h'
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('start-btn').disabled = true;
+                    document.getElementById('stop-btn').disabled = false;
+                    showNotification('Bot started successfully', 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error starting bot: ' + error, 'error');
+            }
+        });
+
+        // Stop bot
+        document.getElementById('stop-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/stop', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('start-btn').disabled = false;
+                    document.getElementById('stop-btn').disabled = true;
+                    showNotification('Bot stopped successfully', 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error stopping bot: ' + error, 'error');
+            }
+        });
+
+        // Update bot status and trades
+        async function updateStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                if (data.status === 'active') {
+                    indicator.className = 'status-indicator status-active';
+                    statusText.textContent = 'Active';
+                    
+                    // Update balance
+                    document.getElementById('balance').textContent = 
+                        parseFloat(data.balance).toFixed(2) + ' USDT';
+                    
+                    // Update trades count
+                    document.getElementById('trades-count').textContent = 
+                        data.active_trades.length;
+                    
+                    // Update active trades
+                    updateActiveTrades(data.active_trades);
+                } else {
+                    indicator.className = 'status-indicator status-inactive';
+                    statusText.textContent = 'Inactive';
+                    document.getElementById('active-trades').innerHTML = 'No active trades';
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        // Update pattern history
+        async function updatePatterns() {
+            try {
+                const response = await fetch('/api/patterns');
+                const data = await response.json();
+                
+                const patternsDiv = document.getElementById('pattern-history');
+                if (!data.patterns || data.patterns.length === 0) {
+                    patternsDiv.innerHTML = 'No patterns detected';
+                    return;
+                }
+
+                const html = data.patterns.map(pattern => `
+                    <div class="pattern-item ${pattern.action}-signal">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>${pattern.type}</strong>
+                            <span class="badge bg-${pattern.action === 'buy' ? 'success' : 
+                                                    pattern.action === 'sell' ? 'danger' : 'warning'}">
+                                ${pattern.action.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <small>Confidence: ${(pattern.confidence * 100).toFixed(1)}%</small><br>
+                            <small>Time: ${new Date(pattern.time).toLocaleString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+                
+                patternsDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Error updating patterns:', error);
+            }
+        }
+
+        // Update active trades display
+        function updateActiveTrades(trades) {
+            const tradesDiv = document.getElementById('active-trades');
+            if (!trades || trades.length === 0) {
+                tradesDiv.innerHTML = 'No active trades';
+                return;
+            }
+
+            const html = trades.map(trade => `
+                <div class="trade-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>${trade.symbol}</strong>
+                        <span class="badge bg-primary">OPEN</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="row">
+                            <div class="col-6">
+                                <small>Entry: ${parseFloat(trade.entry_price).toFixed(2)}</small>
+                            </div>
+                            <div class="col-6">
+                                <small>Size: ${parseFloat(trade.position_size).toFixed(3)}</small>
+                            </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col-6">
+                                <small>Stop Loss: ${parseFloat(trade.stop_loss).toFixed(2)}</small>
+                            </div>
+                            <div class="col-6">
+                                <small>Take Profit: ${parseFloat(trade.take_profit).toFixed(2)}</small>
+                            </div>
+                        </div>
+                        <div class="mt-1">
+                            <small>Time: ${new Date(trade.entry_time).toLocaleString()}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            tradesDiv.innerHTML = html;
+        }
+
+        // Show notifications
+        function showNotification(message, type) {
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} 
+                                       position-fixed top-0 end-0 m-3`;
+            notificationDiv.style.zIndex = '1000';
+            notificationDiv.textContent = message;
+            
+            document.body.appendChild(notificationDiv);
+            
+            setTimeout(() => {
+                notificationDiv.remove();
+            }, 3000);
+        }
+
+        // Start update intervals
+        setInterval(updateStatus, STATUS_INTERVAL);
+        setInterval(updatePatterns, PATTERN_INTERVAL);
+
+        // Initial updates
+        updateStatus();
+        updatePatterns();
+
+        // Add this to your existing JavaScript
+        async function updateMarketData() {
+            try {
+                const response = await fetch('/api/market-data');
+                const data = await response.json();
+                
+                if (data.status !== 'error') {
+                    document.getElementById('btc-price').textContent = 
+                        `$${parseFloat(data.price).toFixed(2)}`;
+                    
+                    const change = parseFloat(data.change);
+                    document.getElementById('price-change').textContent = 
+                        `${change.toFixed(2)}%`;
+                    document.getElementById('price-change').style.color = 
+                        change >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                    
+                    document.getElementById('volume').textContent = 
+                        `$${(data.volume / 1000000).toFixed(2)}M`;
+                    
+                    document.getElementById('market-mode').textContent = data.market_mode;
+                    document.getElementById('market-mode').style.color = 
+                        data.market_mode === 'Bullish' ? 'var(--success-color)' : 'var(--danger-color)';
+                }
+            } catch (error) {
+                console.error('Error updating market data:', error);
+            }
+        }
+
+        // Add this to your intervals
+        setInterval(updateMarketData, 5000);
+        updateMarketData();  // Initial update
+
+        // Add after existing JavaScript code
+        let chart;
+        let candleSeries;
+
+        function initChart() {
+            const chartContainer = document.getElementById('chart');
+            
+            chart = LightweightCharts.createChart(chartContainer, {
+                width: chartContainer.clientWidth,
+                height: 400,
+                layout: {
+                    backgroundColor: 'var(--card-bg)',
+                    textColor: '#ffffff',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                    horzLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                timeScale: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                },
+                rightPriceScale: {
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                },
+            });
+
+            candleSeries = chart.addCandlestickSeries({
+                upColor: '#26a69a',
+                downColor: '#ef5350',
+                borderVisible: false,
+                wickUpColor: '#26a69a',
+                wickDownColor: '#ef5350',
+            });
+
+            // Add volume series
+            const volumeSeries = chart.addHistogramSeries({
+                color: '#26a69a',
+                priceFormat: {
+                    type: 'volume',
+                },
+                priceScaleId: '',
+                scaleMargins: {
+                    top: 0.8,
+                    bottom: 0,
+                },
+            });
+
+            updateChartData();
+        }
+
+        async function updateChartData() {
+            try {
+                const response = await fetch('/api/chart-data');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    candleSeries.setData(data.data);
+                }
+            } catch (error) {
+                console.error('Error updating chart:', error);
+            }
+        }
+
+        function changeTimeframe(timeframe) {
+            // Update chart timeframe
+            fetch(`/api/chart-data?timeframe=${timeframe}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        candleSeries.setData(data.data);
+                    }
+                })
+                .catch(error => console.error('Error changing timeframe:', error));
+        }
+
+        // Update trade history
+        async function updateTradeHistory() {
+            try {
+                const response = await fetch('/api/trade-history');
+                const data = await response.json();
+                
+                const historyTable = document.getElementById('trade-history');
+                if (!data.trades || data.trades.length === 0) {
+                    historyTable.innerHTML = '<tr><td colspan="7" class="text-center">No trade history</td></tr>';
+                    return;
+                }
+
+                const html = data.trades.map(trade => `
+                    <tr>
+                        <td>${new Date(trade.exit_time).toLocaleString()}</td>
+                        <td>${trade.symbol}</td>
+                        <td class="${trade.type === 'buy' ? 'text-success' : 'text-danger'}">${trade.type.toUpperCase()}</td>
+                        <td>${parseFloat(trade.entry_price).toFixed(2)}</td>
+                        <td>${parseFloat(trade.exit_price).toFixed(2)}</td>
+                        <td>${parseFloat(trade.position_size).toFixed(3)}</td>
+                        <td class="${trade.pnl >= 0 ? 'text-success' : 'text-danger'}">
+                            ${trade.pnl >= 0 ? '+' : ''}${parseFloat(trade.pnl).toFixed(2)}%
+                        </td>
+                    </tr>
+                `).join('');
+                
+                historyTable.innerHTML = html;
+            } catch (error) {
+                console.error('Error updating trade history:', error);
+            }
+        }
+
+        // Initialize chart when page loads
+        window.addEventListener('load', initChart);
+        window.addEventListener('resize', () => {
+            chart.applyOptions({ width: document.getElementById('chart').clientWidth });
+        });
+
+        // Add to your intervals
+        setInterval(updateTradeHistory, 10000);
+        updateTradeHistory();  // Initial update
+
+        // Add to your existing JavaScript
+        async function updatePerformanceMetrics() {
+            try {
+                const response = await fetch('/api/performance');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const metrics = data.metrics;
+                    
+                    document.getElementById('win-rate').textContent = 
+                        `${metrics.win_rate.toFixed(1)}%`;
+                    document.getElementById('avg-profit').textContent = 
+                        `${metrics.avg_profit > 0 ? '+' : ''}${metrics.avg_profit.toFixed(2)}%`;
+                    document.getElementById('profit-factor').textContent = 
+                        metrics.profit_factor.toFixed(2);
+                    document.getElementById('max-drawdown').textContent = 
+                        `${metrics.max_drawdown.toFixed(2)}%`;
+                    
+                    // Color coding
+                    document.getElementById('win-rate').style.color = 
+                        metrics.win_rate > 50 ? 'var(--success-color)' : 'var(--danger-color)';
+                    document.getElementById('avg-profit').style.color = 
+                        metrics.avg_profit > 0 ? 'var(--success-color)' : 'var(--danger-color)';
+                }
+            } catch (error) {
+                console.error('Error updating performance metrics:', error);
+            }
+        }
+
+        async function updateRiskMetrics() {
+            try {
+                const response = await fetch('/api/risk');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const metrics = data.metrics;
+                    
+                    document.getElementById('total-exposure').textContent = 
+                        `$${metrics.total_exposure.toFixed(2)}`;
+                    document.getElementById('margin-ratio').textContent = 
+                        `${metrics.margin_ratio.toFixed(1)}%`;
+                    
+                    // Update position usage bar
+                    const usage = (metrics.active_positions / metrics.position_limits) * 100;
+                    const positionBar = document.getElementById('position-usage');
+                    positionBar.style.width = `${usage}%`;
+                    positionBar.textContent = `${metrics.active_positions}/${metrics.position_limits} Positions`;
+                    
+                    // Risk alerts
+                    const alerts = [];
+                    if (metrics.margin_ratio > 75) {
+                        alerts.push('High margin usage!');
+                    }
+                    if (metrics.active_positions >= metrics.position_limits) {
+                        alerts.push('Position limit reached!');
+                    }
+                    
+                    const alertsDiv = document.getElementById('risk-alerts');
+                    if (alerts.length > 0) {
+                        alertsDiv.innerHTML = alerts.join('<br>');
+                        alertsDiv.style.display = 'block';
+                    } else {
+                        alertsDiv.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating risk metrics:', error);
+            }
+        }
+
+        // Add to your intervals
+        setInterval(updatePerformanceMetrics, 10000);
+        setInterval(updateRiskMetrics, 5000);
+
+        // Initial updates
+        updatePerformanceMetrics();
+        updateRiskMetrics();
+
+        // Add to your existing JavaScript
+        let equityChart, winLossChart, monthlyChart, riskDistChart;
+
+        function initCharts() {
+            // Equity Curve Chart
+            const equityCtx = document.getElementById('equity-chart').getContext('2d');
+            equityChart = new Chart(equityCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Equity Curve',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Win/Loss Distribution Chart
+            const winLossCtx = document.getElementById('win-loss-chart').getContext('2d');
+            winLossChart = new Chart(winLossCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Wins', 'Losses'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['rgb(75, 192, 192)', 'rgb(255, 99, 132)']
+                    }]
+                }
+            });
+
+            // Monthly Performance Chart
+            const monthlyCtx = document.getElementById('monthly-performance-chart').getContext('2d');
+            monthlyChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Monthly PnL (%)',
+                        data: [],
+                        backgroundColor: []
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Risk Distribution Chart
+            const riskCtx = document.getElementById('risk-distribution-chart').getContext('2d');
+            riskDistChart = new Chart(riskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: []
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        async function updateCharts() {
+            try {
+                const response = await fetch('/api/performance-charts');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update Equity Curve
+                    const equityData = data.equity_curve;
+                    equityChart.data.labels = equityData.map(d => new Date(d.time).toLocaleDateString());
+                    equityChart.data.datasets[0].data = equityData.map(d => d.value);
+                    equityChart.update();
+
+                    // Update Win/Loss Distribution
+                    winLossChart.data.datasets[0].data = [
+                        data.win_loss_distribution.wins,
+                        data.win_loss_distribution.losses
+                    ];
+                    winLossChart.update();
+
+                    // Update Monthly Performance
+                    const monthlyData = data.monthly_performance;
+                    monthlyChart.data.labels = Object.keys(monthlyData);
+                    monthlyChart.data.datasets[0].data = Object.values(monthlyData);
+                    monthlyChart.data.datasets[0].backgroundColor = monthlyChart.data.datasets[0].data.map(
+                        value => value >= 0 ? 'rgb(75, 192, 192)' : 'rgb(255, 99, 132)'
+                    );
+                    monthlyChart.update();
+                }
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+
+        // Risk Settings Form Handler
+        document.getElementById('risk-settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const settings = {
+                risk_per_trade: parseFloat(document.getElementById('risk-per-trade').value),
+                max_drawdown_limit: parseFloat(document.getElementById('max-drawdown-limit').value),
+                daily_loss_limit: parseFloat(document.getElementById('daily-loss-limit').value)
+            };
+
+            try {
+                const response = await fetch('/api/update-risk-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settings)
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showNotification('Risk settings updated successfully', 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error updating risk settings', 'error');
+            }
+        });
+
+        // Initialize charts
+        window.addEventListener('load', () => {
+            initCharts();
+            updateCharts();
+        });
+
+        // Add to your intervals
+        setInterval(updateCharts, 30000);  // Update charts every 30 seconds
+    </script>
+</body>
+</html> 

@@ -1,0 +1,28 @@
+1. Basic Connection:
+   □ Run test_setup.py - verify API connection
+   □ Check wallet balance display
+   □ Verify market data fetching
+
+2. Web Interface:
+   □ Open http://localhost:5000 in browser
+   □ Check if dashboard loads
+   □ Verify real-time price updates
+   □ Test start/stop bot functionality
+
+3. Trading Functions:
+   □ Test pattern detection
+   □ Verify risk calculations
+   □ Check position sizing
+   □ Test order execution (with small size)
+
+4. Risk Management:
+   □ Verify stop-loss settings
+   □ Test take-profit execution
+   □ Check position limits
+   □ Verify risk per trade calculations
+
+5. Performance Monitoring:
+   □ Check trade history recording
+   □ Verify performance metrics
+   □ Test chart updates
+   □ Check risk metrics display 
