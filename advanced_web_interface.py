@@ -13,10 +13,14 @@ import threading
 import time
 import json
 from collections import defaultdict
+from strat_signal_engine import StratSignalEngine
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Initialize STRAT signal engine
+signal_engine = StratSignalEngine()
 
 # Global data storage
 class MarketData:
@@ -103,6 +107,11 @@ def index():
     """Serve the main dashboard"""
     return render_template('advanced_dashboard.html')
 
+@app.route('/signals')
+def signals_dashboard():
+    """Serve the STRAT signals dashboard"""
+    return render_template('strat_signals_dashboard.html')
+
 @app.route('/api/watchlist', methods=['GET', 'POST'])
 def manage_watchlist():
     """Manage watchlist symbols"""
@@ -149,41 +158,92 @@ def sector_analysis():
 
 @app.route('/api/daily-strat-results')
 def daily_strat_results():
-    """Get daily STRAT analysis results for all symbols"""
+    """Get daily STRAT analysis results with proper actionable signals"""
     results = {}
     
-    for symbol in market_data.watchlist[:20]:  # Limit to first 20 symbols
+    for symbol in market_data.watchlist[:15]:  # Limit to first 15 symbols for performance
         try:
+            # Use the proper STRAT signal engine
+            signal_analysis = signal_engine.identify_actionable_signal(symbol, '15m')
+            
             ticker = yf.Ticker(symbol)
             hist = ticker.history(period='1d', interval='15m')
             
             if not hist.empty:
-                # Convert to dict format
-                candles = hist.reset_index().to_dict('records')
-                patterns = STRATAnalyzer.identify_pattern(candles)
-                
                 daily_change = ((hist['Close'].iloc[-1] - hist['Open'].iloc[0]) / hist['Open'].iloc[0]) * 100
                 
                 results[symbol] = {
-                    'patterns': patterns if patterns else [],
+                    'has_signal': signal_analysis['has_signal'],
+                    'signal_type': signal_analysis.get('signal_type', 'No Signal'),
+                    'direction': signal_analysis.get('direction', 'None'),
+                    'confidence_score': signal_analysis['confidence_score'],
+                    'pattern_sequence': ' -> '.join(signal_analysis['pattern_sequence']) if signal_analysis['pattern_sequence'] else 'No Pattern',
+                    'ftfc_score': signal_analysis.get('ftfc_analysis', {}).get('continuity_score', 0),
+                    'trigger_broken': signal_analysis.get('trigger_info', {}).get('trigger_broken', False),
                     'daily_change': round(daily_change, 2),
                     'close_price': round(hist['Close'].iloc[-1], 2),
                     'volume': int(hist['Volume'].sum()),
                     'high': round(hist['High'].max(), 2),
-                    'low': round(hist['Low'].min(), 2)
+                    'low': round(hist['Low'].min(), 2),
+                    'entry_price': signal_analysis.get('entry_price', 0),
+                    'stop_loss': signal_analysis.get('stop_loss', 0),
+                    'target': signal_analysis.get('target', 0)
                 }
         except Exception as e:
             print(f"Error processing {symbol}: {e}")
             results[symbol] = {
-                'patterns': [],
+                'has_signal': False,
+                'signal_type': 'Error',
+                'direction': 'None',
+                'confidence_score': 0,
+                'pattern_sequence': 'Error',
+                'ftfc_score': 0,
+                'trigger_broken': False,
                 'daily_change': 0,
                 'close_price': 0,
                 'volume': 0,
                 'high': 0,
-                'low': 0
+                'low': 0,
+                'entry_price': 0,
+                'stop_loss': 0,
+                'target': 0
             }
     
     return jsonify(results)
+
+@app.route('/api/actionable-signals')
+def actionable_signals():
+    """Get current actionable STRAT signals from watchlist"""
+    try:
+        # Scan watchlist for actionable signals
+        signals = signal_engine.scan_multiple_symbols(market_data.watchlist[:10], '15m')
+        
+        # Format for frontend
+        formatted_signals = []
+        for signal in signals:
+            if signal['has_signal'] and signal['confidence_score'] >= 70:
+                formatted_signals.append({
+                    'symbol': signal['symbol'],
+                    'signal_type': signal['signal_type'],
+                    'direction': signal['direction'],
+                    'confidence_score': signal['confidence_score'],
+                    'entry_price': signal['entry_price'],
+                    'stop_loss': signal['stop_loss'],
+                    'target': signal['target'],
+                    'risk_reward': round((signal['target'] - signal['entry_price']) / (signal['entry_price'] - signal['stop_loss']), 2) if signal['direction'] == 'LONG' else round((signal['entry_price'] - signal['target']) / (signal['stop_loss'] - signal['entry_price']), 2),
+                    'ftfc_score': signal['ftfc_analysis'].get('continuity_score', 0),
+                    'pattern_sequence': signal['pattern_sequence'],
+                    'timestamp': signal['timestamp'].isoformat()
+                })
+        
+        return jsonify({
+            'signals': formatted_signals,
+            'total_signals': len(formatted_signals),
+            'scan_timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/symbol/<symbol>/strat-analysis')
 def symbol_strat_analysis(symbol):

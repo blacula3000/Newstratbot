@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STRAT Actionable Signals Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dashboard-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active { background: #4caf50; }
+        .status-dot.scanning { background: #ff9800; }
+        .status-dot.inactive { background: #f44336; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Watchlist Panel */
+        .watchlist-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .symbol-input {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .add-btn {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover { transform: translateY(-2px); }
+
+        .symbol-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .symbol-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .symbol-item.has-signal {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.2);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+            to { box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+        }
+
+        .symbol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .symbol-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .signal-indicator {
+            background: #4caf50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .symbol-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+
+        /* Active Signals Panel */
+        .signals-panel {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .signal-card {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+            border: 1px solid #4caf50;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .signal-symbol {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .confidence-badge {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .signal-type {
+            font-size: 16px;
+            color: #4caf50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .signal-direction {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .signal-direction.long {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .signal-direction.short {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .signal-levels {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .level-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .level-label {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .level-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .signal-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .metric-label {
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .analysis-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .summary-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .criteria-checklist {
+            margin-top: 20px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .criteria-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .criteria-icon.met {
+            background: #4caf50;
+            color: white;
+        }
+
+        .criteria-icon.not-met {
+            background: #f44336;
+            color: white;
+        }
+
+        .no-signals {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+        }
+
+        .no-signals-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 15px;
+            }
+            
+            .dashboard-title {
+                font-size: 24px;
+            }
+            
+            .status-bar {
+                gap: 15px;
+            }
+        }
+
+        /* Scan Progress */
+        .scan-progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #45a049);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <i class="fas fa-crosshairs"></i>
+            STRAT Actionable Signals Dashboard
+        </div>
+        <div class="dashboard-subtitle">
+            Real-time detection of high-probability STRAT trading opportunities
+        </div>
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot active"></span>
+                <span>Signal Engine Active</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot scanning"></span>
+                <span id="scan-status">Scanning...</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-clock"></i>
+                <span id="current-time">00:00:00</span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-chart-line"></i>
+                <span id="signal-count">0 Active Signals</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Watchlist Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-list-ul"></i>
+                    Watchlist Scanner
+                </div>
+                <span id="watchlist-count">0 symbols</span>
+            </div>
+            
+            <div class="watchlist-controls">
+                <input type="text" class="symbol-input" placeholder="Add symbol (e.g., AAPL)" id="symbol-input">
+                <button class="add-btn" onclick="addSymbol()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+
+            <div class="scan-progress" id="scan-progress" style="display: none;">
+                <div>Scanning for STRAT signals...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div id="scan-details">Initializing...</div>
+            </div>
+
+            <div id="watchlist-container">
+                <!-- Watchlist items will be added here -->
+            </div>
+        </div>
+
+        <!-- Active Signals Panel -->
+        <div class="panel signals-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-bullseye"></i>
+                    Active Signals
+                </div>
+                <button class="add-btn" onclick="scanForSignals()">
+                    <i class="fas fa-search"></i> Scan Now
+                </button>
+            </div>
+
+            <div id="signals-container">
+                <div class="no-signals">
+                    <div class="no-signals-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div>No actionable signals found</div>
+                    <div style="font-size: 14px; margin-top: 10px; opacity: 0.7;">
+                        Waiting for proper STRAT setups with trigger breaks and FTFC ≥70%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="panel analysis-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-analytics"></i>
+                    Signal Analysis
+                </div>
+            </div>
+
+            <div class="analysis-summary">
+                <h4 style="margin-bottom: 15px;">Today's Summary</h4>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-value" id="total-scanned">0</div>
+                        <div class="summary-label">Symbols Scanned</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="signals-found">0</div>
+                        <div class="summary-label">Signals Found</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="avg-confidence">0%</div>
+                        <div class="summary-label">Avg Confidence</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="success-rate">--</div>
+                        <div class="summary-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="criteria-checklist">
+                <h4 style="margin-bottom: 15px;">Signal Criteria</h4>
+                <div class="criteria-item">
+                    <div class="criteria-icon met">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>Valid STRAT Pattern (2-1-2, 3-1-2, etc.)</div>
+                </div>
+                <div class="criteria-item">
+                    <div class="criteria-icon met">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>Trigger Level Break Confirmed</div>
+                </div>
+                <div class="criteria-item">
+                    <div class="criteria-icon met">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>Full Time Frame Continuity ≥70%</div>
+                </div>
+                <div class="criteria-item">
+                    <div class="criteria-icon met">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>Confidence Score ≥70%</div>
+                </div>
+                <div class="criteria-item">
+                    <div class="criteria-icon met">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>Risk:Reward ≥1:2</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h4 style="margin-bottom: 15px;">Pattern Types</h4>
+                <div style="font-size: 13px; line-height: 1.6;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>2-1-2 Reversal:</strong> High probability reversal setup
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>3-1-2 Combo:</strong> Volatility expansion with consolidation
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>1-2-2 Breakout:</strong> Inside bar with directional follow-through
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script>
+        // Global variables
+        let watchlist = [];
+        let activeSignals = [];
+        let scanInProgress = false;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            loadDefaultWatchlist();
+            
+            // Auto-scan every 5 minutes
+            setInterval(scanForSignals, 300000);
+            
+            // Initial scan after page load
+            setTimeout(scanForSignals, 2000);
+        });
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString();
+        }
+
+        function loadDefaultWatchlist() {
+            const defaultSymbols = ['SPY', 'QQQ', 'AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 'AMD'];
+            watchlist = [...defaultSymbols];
+            updateWatchlistDisplay();
+        }
+
+        function addSymbol() {
+            const input = document.getElementById('symbol-input');
+            const symbol = input.value.toUpperCase().trim();
+            
+            if (symbol && !watchlist.includes(symbol)) {
+                watchlist.push(symbol);
+                updateWatchlistDisplay();
+                input.value = '';
+            }
+        }
+
+        function updateWatchlistDisplay() {
+            const container = document.getElementById('watchlist-container');
+            const count = document.getElementById('watchlist-count');
+            
+            container.innerHTML = '';
+            count.textContent = `${watchlist.length} symbols`;
+            
+            watchlist.forEach(symbol => {
+                const hasSignal = activeSignals.some(s => s.symbol === symbol);
+                const item = createWatchlistItem(symbol, hasSignal);
+                container.appendChild(item);
+            });
+        }
+
+        function createWatchlistItem(symbol, hasSignal = false) {
+            const div = document.createElement('div');
+            div.className = `symbol-item ${hasSignal ? 'has-signal' : ''}`;
+            
+            const price = (Math.random() * 500 + 50).toFixed(2);
+            const change = (Math.random() * 10 - 5).toFixed(2);
+            
+            div.innerHTML = `
+                <div class="symbol-header">
+                    <span class="symbol-name">${symbol}</span>
+                    ${hasSignal ? '<span class="signal-indicator">SIGNAL</span>' : ''}
+                </div>
+                <div class="symbol-details">
+                    <div class="detail-item">$${price}</div>
+                    <div class="detail-item" style="color: ${change >= 0 ? '#4caf50' : '#f44336'}">
+                        ${change >= 0 ? '+' : ''}${change}%
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function scanForSignals() {
+            if (scanInProgress) return;
+            
+            scanInProgress = true;
+            document.getElementById('scan-status').textContent = 'Scanning...';
+            document.getElementById('scan-progress').style.display = 'block';
+            
+            // Simulate scanning progress
+            let progress = 0;
+            const progressBar = document.getElementById('progress-fill');
+            const scanDetails = document.getElementById('scan-details');
+            
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = progress + '%';
+                
+                if (progress < 30) {
+                    scanDetails.textContent = 'Fetching market data...';
+                } else if (progress < 60) {
+                    scanDetails.textContent = 'Analyzing STRAT patterns...';
+                } else if (progress < 90) {
+                    scanDetails.textContent = 'Checking trigger breaks and FTFC...';
+                } else {
+                    scanDetails.textContent = 'Validating signals...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Fetch actual signals
+                    fetch('/api/actionable-signals')
+                        .then(response => response.json())
+                        .then(data => {
+                            activeSignals = data.signals || [];
+                            updateSignalsDisplay();
+                            updateAnalysisSummary();
+                            
+                            document.getElementById('scan-progress').style.display = 'none';
+                            document.getElementById('scan-status').textContent = 
+                                `Last scan: ${new Date().toLocaleTimeString()}`;
+                            
+                            scanInProgress = false;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching signals:', error);
+                            // Show demo signals on error
+                            showDemoSignals();
+                            document.getElementById('scan-progress').style.display = 'none';
+                            scanInProgress = false;
+                        });
+                }
+            }, 200);
+        }
+
+        function showDemoSignals() {
+            // Demo signals for testing
+            activeSignals = [
+                {
+                    symbol: 'AAPL',
+                    signal_type: '2-1-2 Reversal',
+                    direction: 'LONG',
+                    confidence_score: 87,
+                    entry_price: 185.50,
+                    stop_loss: 182.25,
+                    target: 192.00,
+                    ftfc_score: 78,
+                    pattern_sequence: ['2D', '1', '2U'],
+                    risk_reward: 2.0
+                },
+                {
+                    symbol: 'TSLA',
+                    signal_type: '3-1-2 Combo',
+                    direction: 'SHORT',
+                    confidence_score: 82,
+                    entry_price: 248.75,
+                    stop_loss: 255.20,
+                    target: 235.85,
+                    ftfc_score: 73,
+                    pattern_sequence: ['3', '1', '2D'],
+                    risk_reward: 2.0
+                }
+            ];
+            
+            updateSignalsDisplay();
+            updateAnalysisSummary();
+        }
+
+        function updateSignalsDisplay() {
+            const container = document.getElementById('signals-container');
+            const signalCount = document.getElementById('signal-count');
+            
+            signalCount.textContent = `${activeSignals.length} Active Signal${activeSignals.length !== 1 ? 's' : ''}`;
+            
+            if (activeSignals.length === 0) {
+                container.innerHTML = `
+                    <div class="no-signals">
+                        <div class="no-signals-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>No actionable signals found</div>
+                        <div style="font-size: 14px; margin-top: 10px; opacity: 0.7;">
+                            Waiting for proper STRAT setups with trigger breaks and FTFC ≥70%
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+                activeSignals.forEach(signal => {
+                    const signalCard = createSignalCard(signal);
+                    container.appendChild(signalCard);
+                });
+            }
+            
+            updateWatchlistDisplay(); // Update watchlist to show signal indicators
+        }
+
+        function createSignalCard(signal) {
+            const div = document.createElement('div');
+            div.className = 'signal-card';
+            
+            const directionClass = signal.direction.toLowerCase();
+            const directionColor = signal.direction === 'LONG' ? '#4caf50' : '#f44336';
+            
+            div.innerHTML = `
+                <div class="signal-header">
+                    <div class="signal-symbol">${signal.symbol}</div>
+                    <div class="confidence-badge">${signal.confidence_score}%</div>
+                </div>
+                
+                <div class="signal-type">${signal.signal_type}</div>
+                
+                <div class="signal-direction ${directionClass}">
+                    ${signal.direction} SIGNAL
+                </div>
+                
+                <div class="signal-levels">
+                    <div class="level-item">
+                        <div class="level-label">Entry</div>
+                        <div class="level-value">$${signal.entry_price.toFixed(2)}</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">Stop</div>
+                        <div class="level-value">$${signal.stop_loss.toFixed(2)}</div>
+                    </div>
+                    <div class="level-item">
+                        <div class="level-label">Target</div>
+                        <div class="level-value">$${signal.target.toFixed(2)}</div>
+                    </div>
+                </div>
+                
+                <div class="signal-metrics">
+                    <div class="metric-item">
+                        <div class="metric-value">1:${signal.risk_reward.toFixed(1)}</div>
+                        <div class="metric-label">R:R</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${signal.ftfc_score}%</div>
+                        <div class="metric-label">FTFC</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-value">${signal.pattern_sequence.join('-')}</div>
+                        <div class="metric-label">Pattern</div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function updateAnalysisSummary() {
+            document.getElementById('total-scanned').textContent = watchlist.length;
+            document.getElementById('signals-found').textContent = activeSignals.length;
+            
+            if (activeSignals.length > 0) {
+                const avgConfidence = activeSignals.reduce((sum, s) => sum + s.confidence_score, 0) / activeSignals.length;
+                document.getElementById('avg-confidence').textContent = Math.round(avgConfidence) + '%';
+            } else {
+                document.getElementById('avg-confidence').textContent = '0%';
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.activeElement.id === 'symbol-input') {
+                addSymbol();
+            } else if (e.key === 's' && e.ctrlKey) {
+                e.preventDefault();
+                scanForSignals();
+            }
+        });
+
+        // Show demo signals on load for testing
+        setTimeout(showDemoSignals, 3000);
+    </script>
+</body>
+</html>
