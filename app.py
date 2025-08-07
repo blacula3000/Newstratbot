@@ -82,6 +82,11 @@ def dashboard():
     """Main dashboard page"""
     return render_template('dashboard.html')
 
+@app.route('/advanced')
+def advanced_dashboard():
+    """Advanced dashboard with watchlist and sector analysis"""
+    return render_template('advanced_dashboard.html')
+
 @app.route('/start_bot', methods=['POST'])
 def start_bot():
     """Start the trading bot"""
