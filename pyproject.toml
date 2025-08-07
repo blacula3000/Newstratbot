@@ -1,0 +1,22 @@
+[project]
+name = "newstratbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alpaca-trade-api>=3.2.0",
+    "ccxt>=4.4.99",
+    "eventlet>=0.40.2",
+    "flask>=3.1.1",
+    "flask-socketio>=5.5.1",
+    "gunicorn>=23.0.0",
+    "numpy>=2.3.2",
+    "pandas>=2.3.1",
+    "pybit>=5.11.0",
+    "python-dotenv>=1.1.1",
+    "python-engineio>=4.12.2",
+    "python-socketio>=5.13.0",
+    "typing-extensions>=4.14.1",
+    "yfinance>=0.2.58",
+]

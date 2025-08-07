@@ -1,15 +1,25 @@
-# 🤖 Newstratbot - Advanced Trading Bot
+# 🤖 Newstratbot - Advanced Multi-Agent STRAT Trading Bot
 
-A sophisticated Python trading bot with real-time candlestick pattern detection and **web interface dashboard**.
+A sophisticated Python trading bot implementing **The STRAT methodology** with a multi-agent architecture for intelligent market analysis and automated trading decisions. Features real-time pattern detection, multi-timeframe confluence analysis, and a modern web interface dashboard.
 
 ## ✨ Features
 
-- 🎯 **Real-time Pattern Detection**: Bullish and bearish reversal patterns
+### Core Trading Features
+- 🎯 **STRAT Pattern Detection**: Identifies 1s, 2s, 3s and complex combos (2-1-2, 3-1-2, etc.)
+- 🤖 **Multi-Agent Architecture**: Specialized agents for scenario classification, timeframe confluence, and trigger monitoring
 - 📊 **Web Dashboard**: Modern, responsive interface with live updates
-- 📈 **Multiple Timeframes**: 1m, 5m, 15m, 1h intervals
-- 📋 **Live Logging**: Real-time trading logs and system events
-- 🔄 **Auto-refresh**: 30-second update intervals
-- 💰 **Multi-symbol Support**: Any stock symbol (SPY, AAPL, etc.)
+- 📈 **Multi-Timeframe Analysis**: Monthly to 5-minute timeframe confluence
+- 🎛️ **Trigger Line Monitoring**: Entry/exit signal validation with momentum analysis
+- 📋 **Live Logging**: Real-time trading logs and agent communications
+- 🔄 **Auto-refresh**: Real-time WebSocket updates
+- 💰 **Multi-symbol Support**: Crypto (Binance, Bybit) and Stocks (Alpaca, any Yahoo Finance symbol)
+
+### Agent System Features
+- 🧠 **Intelligent Coordination**: Supervisor agent orchestrates multiple specialized sub-agents
+- 📐 **Timeframe Confluence**: Analyzes alignment across 7+ timeframes
+- 🎯 **High-Probability Setups**: Only trades with >70% confluence score
+- ⚡ **Real-time Decision Making**: Sub-second latency for signal generation
+- 🛡️ **Risk Management**: Automated position sizing and stop-loss placement
 
 ## 🚀 Quick Start
 
@@ -64,22 +74,55 @@ The web dashboard includes:
    python app.py
    ```
 
+## 🤖 Multi-Agent Architecture
+
+The bot uses a sophisticated multi-agent system where specialized agents work together:
+
+### Agent Hierarchy
+```
+        Supervisor Agent (Orchestrator)
+                    │
+    ┌───────────────┼───────────────┐
+    │               │               │
+Scenario Agent  Confluence Agent  Trigger Agent
+    │               │               │
+    └───────────────┼───────────────┘
+                    │
+            Trade Director Agent
+                    │
+            Execution Engine
+```
+
+### Core Agents
+1. **Supervisor Agent**: Coordinates all sub-agents and makes final decisions
+2. **Scenario Classifier**: Identifies STRAT patterns (1s, 2s, 3s, combos)
+3. **Timeframe Confluence**: Analyzes alignment across multiple timeframes
+4. **Trigger Line Monitor**: Validates entry/exit signals
+5. **Trade Director**: Synthesizes signals and manages risk
+
+For detailed agent documentation, see [AGENT_ARCHITECTURE.md](AGENT_ARCHITECTURE.md)
+
 ## 📊 Technical Details
 
-### Pattern Detection
-- **Bullish Reversal**: Previous red candle + current green candle + lower low
-- **Bearish Reversal**: Previous green candle + current red candle + higher high
+### STRAT Pattern Detection
+- **Type 1 (Inside Bar)**: Consolidation pattern
+- **Type 2 (Directional Bar)**: Trend continuation
+- **Type 3 (Outside Bar)**: Volatility expansion
+- **Reversal Combos**: 2-1-2, 3-1-2, 2-2, 3-2-1 patterns
 
-### Data Source
-- **Yahoo Finance API** via `yfinance` library
-- Real-time market data
-- Historical candlestick data
+### Data Sources
+- **Crypto**: Binance, Bybit APIs
+- **Stocks**: Alpaca API, Yahoo Finance
+- **Real-time**: WebSocket connections
+- **Historical**: REST API endpoints
 
 ### Technology Stack
 - **Backend**: Flask + SocketIO for real-time updates
 - **Frontend**: Modern HTML5 + CSS3 + JavaScript
-- **Data**: Pandas + NumPy for analysis
-- **Logging**: Python logging module
+- **Data Analysis**: Pandas + NumPy + TA-Lib
+- **Trading APIs**: CCXT, Alpaca, PyBit
+- **Agent System**: Custom multi-agent framework
+- **Logging**: Python logging with real-time streaming
 
 ## 🌐 Web Interface Features
 
