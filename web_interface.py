@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import threading
 from trading_bot import TradingBot
+from multi_timeframe_analyzer import MultiTimeframeAnalyzer
 import logging
 
 app = Flask(__name__)
@@ -8,6 +9,7 @@ app = Flask(__name__)
 # Global bot instance
 bot = None
 bot_thread = None
+mtf_analyzer = MultiTimeframeAnalyzer()
 
 @app.route('/')
 def index():
@@ -144,6 +146,79 @@ def analyze_with_agent():
         return jsonify({
             'status': 'success',
             'analysis': analysis
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/mtf')
+def multi_timeframe():
+    """Render the multi-timeframe analysis page."""
+    return render_template('multi_timeframe.html')
+
+@app.route('/api/mtf/analyze', methods=['POST'])
+def analyze_multi_timeframe():
+    """Analyze an asset across multiple timeframes."""
+    try:
+        data = request.json
+        symbol = data.get('symbol')
+        timeframes = data.get('timeframes', ['15m', '30m', '1h', '1d'])
+        
+        if not symbol:
+            return jsonify({'status': 'error', 'message': 'Symbol required'})
+        
+        # Get multi-timeframe analysis
+        analysis = mtf_analyzer.get_multi_timeframe_analysis(symbol, timeframes)
+        
+        return jsonify({
+            'status': 'success',
+            'data': analysis
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/mtf/confluence', methods=['POST'])
+def get_timeframe_confluence():
+    """Get confluence analysis across timeframes."""
+    try:
+        data = request.json
+        symbol = data.get('symbol')
+        timeframes = data.get('timeframes', ['15m', '30m', '1h', '1d'])
+        
+        if not symbol:
+            return jsonify({'status': 'error', 'message': 'Symbol required'})
+        
+        # Get confluence analysis
+        confluence = mtf_analyzer.get_timeframe_confluence(symbol, timeframes)
+        
+        return jsonify({
+            'status': 'success',
+            'data': confluence
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/mtf/batch', methods=['POST'])
+def analyze_batch_mtf():
+    """Analyze multiple symbols across timeframes."""
+    try:
+        data = request.json
+        symbols = data.get('symbols', [])
+        timeframes = data.get('timeframes', ['15m', '30m', '1h', '1d'])
+        
+        if not symbols:
+            return jsonify({'status': 'error', 'message': 'Symbols required'})
+        
+        results = {}
+        for symbol in symbols[:10]:  # Limit to 10 symbols
+            try:
+                analysis = mtf_analyzer.get_multi_timeframe_analysis(symbol, timeframes)
+                results[symbol] = analysis
+            except Exception as e:
+                results[symbol] = {'error': str(e)}
+        
+        return jsonify({
+            'status': 'success',
+            'data': results
         })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
