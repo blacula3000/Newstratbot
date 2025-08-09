@@ -1,0 +1,14 @@
+[project]
+name = "desktop"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.61.0",
+]
+
+[tool.uv.workspace]
+members = [
+    "Newstratbot",
+]

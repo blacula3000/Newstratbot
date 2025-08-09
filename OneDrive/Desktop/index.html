@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camp D'Été Programmation Bootcamp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #0073e6;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        #logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .register-button {
+            background-color: #ff6600;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1em;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #0073e6;
+            border-bottom: 2px solid #0073e6;
+            padding-bottom: 5px;
+        }
+        ul {
+            list-style-type: disc;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        blockquote {
+            border-left: 5px solid #0073e6;
+            padding-left: 10px;
+            font-style: italic;
+            color: #555;
+        }
+        footer {
+            background-color: #0073e6;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+        }
+        footer .social-media a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        footer .social-media a:hover {
+            text-decoration: underline;
+        }
+        .countdown {
+            font-size: 1.5em;
+            color: #ff6600;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 50%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .schedule-table th {
+            background-color: #0073e6;
+            color: white;
+        }
+        .schedule-table .week-header {
+            background-color: #e6f0ff;
+            font-weight: bold;
+            text-align: center;
+        }
+        .schedule-table .week {
+            text-align: center;
+        }
+        #visitor-counter {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="lab_haiti_logo.png" alt="Logo The Lab Haiti" id="logo">
+        <h1>Camp D'Été Programmation Python</h1>
+        <p>Rejoignez notre bootcamp intensif de 10 jours en Python et transformez vos compétences en codage.</p>
+        <a href="#register" class="register-button">Enregistrez-vous maintenant!</a>
+        <div class="countdown" id="countdown"></div>
+    </header>
+    <main>
+        <section id="why-learn">
+            <h2>Pourquoi apprendre Python?</h2>
+            <ul>
+                <li>Forte demande : Python est l'un des langages de programmation les plus demandés sur le marché du travail.</li>
+                <li>Python est utilisé par Netflix, Google, Instagram, TikTok et d'autres grandes entreprises technologiques. Ces sociétés exploitent la puissance et la flexibilité de Python pour développer leurs plateformes, analyser des données massives et créer des fonctionnalités innovantes.</li>
+                <li>Polyvalent : Du développement web à la science des données, Python est utilisé dans divers domaines.</li>
+                <li>Convient aux débutants : Syntaxe facile à apprendre et un excellent point de départ pour les nouveaux programmeurs.</li>
+            </ul>
+        </section>
+        <section id="what-learn">
+            <h2>Ce que vous apprendrez</h2>
+            <ul>
+                <li><strong>Introduction à Python</strong> : Comprendre la syntaxe de Python, installer Python, et configurer l'environnement de développement.</li>
+                <li><strong>Types de données de base</strong> : Apprendre les variables, les entiers, les flottants, les chaînes de caractères et les booléens, et comment effectuer des opérations avec eux.</li>
+                <li><strong>Contrôle de flux</strong> : Utiliser les instructions conditionnelles (`if`, `elif`, `else`) et les boucles (`for`, `while`) pour contrôler le flux du programme.</li>
+                <li><strong>Fonctions</strong> : Définir et utiliser des fonctions, comprendre les paramètres, les valeurs de retour et la portée des variables.</li>
+                <li><strong>Structures de données</strong> : Travailler avec les listes, les tuples, les dictionnaires et les ensembles, y compris la création, l'accès, la modification et l'itération à travers eux.</li>
+                <li><strong>Gestion des fichiers</strong> : Lire et écrire dans des fichiers, gérer les chemins de fichiers et effectuer des opérations sur les fichiers.</li>
+                <li><strong>Gestion des erreurs</strong> : Utiliser les blocs try-except pour gérer les exceptions et traiter les erreurs de manière élégante.</li>
+                <li><strong>Programmation orientée objet</strong> : Comprendre les classes et les objets, l'héritage, l'encapsulation et le polymorphisme.</li>
+                <li><strong>Modules et bibliothèques</strong> : Importer et utiliser des bibliothèques et des modules Python, et comprendre comment créer vos propres modules.</li>
+                <li><strong>Analyse de données de base</strong> : Introduction à l'analyse de données avec des bibliothèques comme Pandas et NumPy, et traçage de base avec Matplotlib.</li>
+            </ul>
+        </section>
+           <section id="instructor">
+            <h2>Votre instructeur</h2>
+            <p><strong>Gardy Dupiton</strong></p>
+            <ul>
+               <li>20+ ans d'expérience en programmation et informatique</li>
+                <li>Post Graduate en Technologie cloud Univeristy of Texas</li>
+                <li><a href="https://learn.microsoft.com/en-us/users/gardyd-2822/credentials/certification/identity-and-access-administrator?tab=credentials-tab" target="_blank">SC-300 Microsoft Certified: Identity and Access Administrator Associate</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/users/gardyd-2822/credentials/certification/security-compliance-and-identity-fundamentals?tab=credentials-tab" target="_blank">SC-900 Microsoft Certified: Security, Compliance, and Identity Fundamentals</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/users/gardyd-2822/credentials/certification/azure-fundamentals?tab=credentials-tab" target="_blank">AZ-900 Azure Fundamentals</a></li>
+                <li><a href="https://cp.certmetrics.com/amazon/en/history/exams" target="_blank">AWS Certified Cloud Practitioner</a></li>
+                <li><a href="https://www.credly.com/earner/earned/badge/eda4687f-4b3a-4a6a-b251-d571eb38d47e" target="_blank">CompTIA A+ Certification</a></li>
+                <li>Enseignant à Cisco Net Academy</li>
+               
+            </ul>
+        </section>
+        <section id="course-details">
+            <h2>Détails du cours</h2>
+            <p><strong>Prix:</strong>15,000 Gourdes </p>
+            <p><strong>Durée:</strong> 10 jours</p>
+            <p><strong>Horaire:</strong> 2 heures par jour</p>
+       
+                <thead>
+                   <section id="schedule">
+            <h2>Programme détaillé</h2>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th class="week-header">Semaine 1</th>
+                        <th class="week-header">Semaine 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>Jour 1 : Introduction à Python</strong>
+                            <ul>
+                                <li>Présentation du cours et objectifs</li>
+                                <li>Installation de l'environnement Python (Anaconda, Jupyter Notebook, ou tout IDE)</li>
+                                <li>Syntaxe de base et mode interactif</li>
+                                <li>Variables, types de données (entiers, flottants, chaînes de caractères, booléens)</li>
+                                <li>Entrée et sortie de base</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong>Jour 6 : Gestion des exceptions</strong>
+                            <ul>
+                                <li>Comprendre les exceptions</li>
+                                <li>Blocs try, except, finally</li>
+                                <li>Lancer des exceptions</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Jour 2 : Structures de contrôle</strong>
+                            <ul>
+                                <li>Instructions conditionnelles (if, elif, else)</li>
+                                <li>Boucles (for, while)</li>
+                                <li>Instructions break et continue</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong>Jour 7 : Modules et paquets</strong>
+                            <ul>
+                                <li>Importer des modules</li>
+                                <li>Présentation de la bibliothèque standard (os, sys, math, random, etc.)</li>
+                                <li>Installer et utiliser des paquets tiers (pip)</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Jour 3 : Fonctions</strong>
+                            <ul>
+                                <li>Définir des fonctions</li>
+                                <li>Arguments et paramètres</li>
+                                <li>Valeurs de retour</li>
+                                <li>Portée des variables (locales et globales)</li>
+                                <li>Fonctions lambda</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong>Jour 8 : Programmation orientée objet</strong>
+                            <ul>
+                                <li>Classes et objets</li>
+                                <li>Attributs et méthodes</li>
+                                <li>Constructeurs</li>
+                                <li>Héritage</li>
+                                <li>Polymorphisme</li>
+                                <li>Encapsulation</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Jour 4 : Structures de données</strong>
+                            <ul>
+                                <li>Listes</li>
+                                <li>Tuples</li>
+                                <li>Dictionnaires</li>
+                                <li>Ensembles</li>
+                                <li>Compréhensions de listes</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong>Jour 9 : Analyse de données avec Pandas et NumPy</strong>
+                            <ul>
+                                <li>Introduction à Pandas</li>
+                                <li>Manipulation des DataFrames</li>
+                                <li>Nettoyage et préparation des données</li>
+                                <li>Introduction à NumPy</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Jour 5 : Fichiers et E/S</strong>
+                            <ul>
+                                <li>Lire et écrire dans des fichiers</li>
+                                <li>Modes de fichier (lecture, écriture, ajout)</li>
+                                <li>Gestion des chemins de fichiers</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <strong>Jour 10 : Visualisation de données avec Matplotlib</strong>
+                            <ul>
+                                <li>Introduction à Matplotlib</li>
+                                <li>Création de graphiques simples (lignes, barres, scatter)</li>
+                                <li>Personnalisation des graphiques (titres, étiquettes, légendes)</li>
+                                <li>Exercices pratiques</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+                
+            </table>
+        </section>
+        <section id="testimonials">
+            <h2>Bonus</h2>
+            <blockquote>
+                1 heure par jour pour pratiquer, vous pouvez faire des progrès significatifs en vous concentrant sur des sujets spécifiques chaque jour.
+            </blockquote>
+            <blockquote>
+                Livre Python pour les débutants en PDF inclus d'une valeur de 20 $
+            </blockquote>
+        </section>
+        <section id="register">
+            <h2>Inscription</h2>
+           <a href="https://docs.google.com/forms/d/e/1FAIpQLSejI37QxA86MPURHvfArM6hJXcdlgk2AhDfQfTf6ppN-ULoMA/viewform?usp=pp_url" target="_blank">Click ici pour enregistre </a>
+        </section>
+        <div id="visitor-counter">Nombre de visiteurs: <span id="count">0</span></div>
+    </main>
+    <footer>
+        <p>&copy; 2024 The Lab Haiti. Tous droits réservés.</p>
+        <div class="social-media">
+            <a href="https://www.facebook.com/TheLabHaiti" target="_blank">Facebook</a> 
+ |
+            <a href="https://www.linkedin.com/in/gardy-dupiton" target="_blank">LinkedIn</a>
+        </div>
+    </footer>
+    <script>
+        // Countdown timer script
+        const countdown = () => {
+            const countDate = new Date("Aug 12, 2024 00:00:00").getTime();
+            const now = new Date().getTime();
+            const gap = countDate - now;
+
+            const second = 1000;
+            const minute = second * 60;
+            const hour = minute * 60;
+            const day = hour * 24;
+
+            const textDay = Math.floor(gap / day);
+            const textHour = Math.floor((gap % day) / hour);
+            const textMinute = Math.floor((gap % hour) / minute);
+            const textSecond = Math.floor((gap % minute) / second);
+
+            document.getElementById('countdown').innerHTML = 
+                `Début dans: ${textDay}Jours ${textHour}Heures ${textMinute}Minutes ${textSecond}Secondes`;
+
+            if (gap < 0) {
+                clearInterval(timer);
+                document.getElementById('countdown').innerHTML = "Le bootcamp a commencé!";
+            }
+        }
+
+        const timer = setInterval(countdown, 1000);
+
+        // Visitor counter script
+        let count = localStorage.getItem('visitorCount') || 0;
+        count = parseInt(count) + 1;
+        localStorage.setItem('visitorCount', count);
+        document.getElementById('count').textContent = count;
+    </script>
+</body>
+</html>

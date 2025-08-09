@@ -1,0 +1,169 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+.cursor-tutor/
+.cursor-tutor-1/
+.cursor-tutor-2/
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+
+# Trading bot specific
+config.json
+credentials.json
+api_keys.json
+
+# Temporary files
+.tmp.driveupload/
+*.tmp
+*.bak
+*.backup
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Personal files
+*.lnk
+*.url
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Claude
+.claude/
+.claude.json
+.claude.json.backup
+
+# AWS/Azure
+.aws/
+.azure/
+.azuredatastudio/
+
+# Docker
+.docker/
+
+# Conda
+.conda/
+.continuum/
+.anaconda/
+
+# Other development tools
+.local/
+.ssh/
+.config/
+.bash_history
+.zshrc
+.profile
+.gitconfig
+
+# Windows specific
+NTUSER.DAT*
+ntuser.*
+
+# OneDrive specific
+.849C9593-D756-4E56-8D6E-42412F2A707B
+
+# User directories to ignore
+Documents/
+Downloads/
+Pictures/
+Videos/
+Music/
+Contacts/
+Favorites/
+Links/
+AppData/
+Microsoft/
+MicrosoftEdgeBackups/
+VirtualBox*/
+WPS Cloud Files/
+Saved Games/
+Searches/
+3D Objects/
+
+# Course materials
+*Training*/
+*Course*/
+*TutsNode*/
+
+# Personal documents
+*.docx
+*.xlsx
+*.pptx
+Resume/
+Traveldocs/
+WedingPhotos/
+
+# Large directories
+30-Days-Of-Python/
+Complete-Python-3-Bootcamp/
+AzureCookbook/
+algorithmic-trading-python/
+google-cloud-associate-cloud-engineer/
+repos/
+workspace/
+anaconda*/
+miniconda*/
+go/
+
+# Other projects
+avou-community-savings/
+azure-voting-app-redis/
+teched-institute/
+trading-bot-web/
+trading-bot/
+trading_bot/
+
+# Miscellaneous
+kubectl
+*.ipynb
+untitled.py
+myenv/
+Otherbooks/
+STUFF FROM LAPTOP/
+From Computer/
+Azure Notes/
+Digital CLoud*/
+Splunk/
+Salesforce*/
+CompTIA*/
+Lanham*/

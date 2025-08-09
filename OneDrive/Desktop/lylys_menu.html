@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lyly's Bar et Resto - Menu en Ligne | Commandez avec MonCash</title>
+  <meta name="description" content="Commandez en ligne chez Lyly's Bar et Resto. Paiement facile avec MonCash ou à la livraison. Plats haïtiens authentiques depuis 2020.">
+  <meta name="keywords" content="restaurant haïtien, livraison, MonCash, Lyly's, plats créoles, commande en ligne">
+  <meta name="author" content="Lyly's Bar et Resto">
+  <link rel="canonical" href="https://lylyssite.s3.us-east-1.amazonaws.com/lylys_restaurant_menu.html">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* Shopping Cart Styles */
+    .cart-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      z-index: 1000;
+      transition: var(--transition);
+    }
+
+    .cart-toggle:hover {
+      background: #0056b3;
+      transform: scale(1.1);
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: white;
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+      transition: right 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .cart-sidebar.open {
+      right: 0;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .cart-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .cart-item-price {
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .quantity-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-input {
+      width: 60px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 5px;
+    }
+
+    .remove-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .cart-total {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .total-amount {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .checkout-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    .checkout-btn:hover {
+      background: #0056b3;
+    }
+
+    .checkout-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+
+    .add-to-cart-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: var(--transition);
+    }
+
+    .add-to-cart-btn:hover {
+      background: #0056b3;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-cart i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.3;
+    }
+
+    /* Checkout Form Styles */
+    .checkout-form {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .form-group textarea {
+      height: 80px;
+      resize: vertical;
+    }
+
+    .payment-methods {
+      margin: 20px 0;
+    }
+
+    .payment-method {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      padding: 15px;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .payment-method:hover,
+    .payment-method.selected {
+      border-color: var(--primary-color);
+      background: #eef6ff;
+    }
+
+    .payment-method input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .moncash-info {
+      background: #e8f5e8;
+      border: 1px solid #4caf50;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .moncash-info.show {
+      display: block;
+    }
+
+    /* Enhanced Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .cart-sidebar {
+        width: 100vw;
+        right: -100vw;
+        padding: 15px;
+      }
+      
+      .menu-card {
+        padding: 1.5rem;
+        margin: 10px;
+      }
+      
+      .taste {
+        font-size: 2.5rem;
+      }
+      
+      .menu-title {
+        font-size: 2.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+      
+      .menu-item-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .menu-item-actions {
+        align-items: stretch;
+        margin-top: 15px;
+      }
+      
+      .add-to-cart-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+      }
+      
+      .price-options {
+        margin-top: 10px;
+      }
+      
+      .price-option {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px 0;
+      }
+      
+      .price-option .add-to-cart-btn {
+        margin-top: 5px;
+      }
+      
+      .cart-toggle {
+        width: 55px;
+        height: 55px;
+        top: 15px;
+        right: 15px;
+        font-size: 1.3rem;
+      }
+      
+      .checkout-form {
+        padding: 15px;
+      }
+      
+      .payment-method {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+      
+      .contact-info {
+        padding: 1.5rem;
+        margin-top: 2rem;
+      }
+      
+      .social-links {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .social-links a {
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: var(--transition);
+      }
+      
+      .social-links a:hover {
+        background: #e9ecef;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .menu-card {
+        padding: 1rem;
+      }
+      
+      .taste {
+        font-size: 2rem;
+      }
+      
+      .menu-title {
+        font-size: 2rem;
+      }
+      
+      .cart-sidebar {
+        padding: 10px;
+      }
+      
+      .form-group input,
+      .form-group textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+    }
+    
+    /* Accessibility Enhancements */
+    .add-to-cart-btn:focus,
+    .cart-toggle:focus,
+    .checkout-btn:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+    
+    .menu-item:focus-within {
+      background-color: #dceeff;
+      transform: translateY(-2px);
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .menu-item {
+        border: 1px solid var(--primary-color);
+      }
+      
+      .add-to-cart-btn {
+        border: 2px solid white;
+      }
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .menu-item:hover {
+        transform: none;
+      }
+      
+      .cart-toggle:hover {
+        transform: none;
+      }
+      
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #e0e0e0;
+        --secondary-text: #b0b0b0;
+      }
+      
+      body {
+        background-color: #0d1117;
+      }
+      
+      .menu-card {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+      
+      .menu-item {
+        background: #262626;
+      }
+      
+      .menu-item:hover {
+        background: #333;
+      }
+      
+      .contact-info {
+        background-color: #1a1a1a;
+        color: var(--text-color);
+      }
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&family=Dancing+Script&display=swap');
+
+    :root {
+      --primary-color: #007bff;
+      --text-color: #007bff;
+      --bg-color: #ffffff;
+      --secondary-text: #007bff;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #ffffff;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: grid;
+      place-items: center;
+    }
+
+    .menu-card {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 3rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .menu-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .since {
+      color: var(--text-color);
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      opacity: 0.9;
+    }
+
+    .taste {
+      color: var(--text-color);
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 400;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    .menu-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin: 1rem 0;
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .opening-hours {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+      letter-spacing: 2px;
+    }
+
+    .section-title {
+      color: var(--primary-color);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      margin: 2rem 0 1rem;
+      border-bottom: 2px solid #007bff;
+    }
+
+    .menu-item {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #eef6ff;
+      transition: var(--transition);
+    }
+
+    .menu-item:hover {
+      background-color: #dceeff;
+      transform: translateY(-2px);
+    }
+
+    .menu-item-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .menu-item-details {
+      flex: 1;
+    }
+
+    .menu-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .price-options {
+      margin: 10px 0;
+    }
+
+    .price-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0;
+      padding: 5px 0;
+    }
+
+    .price-option input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .item-name {
+      font-weight: 600;
+    }
+
+    .item-price {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .item-description {
+      font-size: 0.9rem;
+      color: var(--secondary-text);
+    }
+
+    .decorative-image {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .goat { top: 22%; right: 20%; }
+    .pig { top: 18%; left: 16%; }
+    .beer { top: 10%; right: 27%; }
+    .cow { top: 5%; right: 5%; }
+    .chicken { top: 5%; left: 8%; }
+    .fish { top: 28%; left: 22%; }
+    .crab { bottom: 26%; right: 39%; }
+    .tomato { top: 36%; right: 25%; }
+    .leaf { bottom: 40%; left: 15%; }
+    .spaghetti { bottom: 50%; left: 33%; }
+    .empanada { bottom: 40%; right: 21%; }
+    .steak { top: 70%; left: 23%; }
+    .drink { bottom: 100%; right: 12%; }
+    .soda { bottom: 5%; right: 5%; }
+
+    .contact-info {
+      background-color: #ffffff;
+      color: var(--text-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-top: 3rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .contact-info h3 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: var(--text-color);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-info .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .social-links a i {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .text-pink-400 { color: #f472b6; }
+    .text-blue-400 { color: #60a5fa; }
+    .text-green-400 { color: #6ee7b7; }
+
+    .text-pink-400:hover { color: #ec4899; }
+    .text-blue-400:hover { color: #3b82f6; }
+    .text-green-400:hover { color: #10b981; }
+  </style>
+</head>
+<body>
+  <div class="menu-card">
+    <div class="menu-header">
+      <p class="since">Depuis 2020</p>
+      <p class="taste">Lyly's Bar et Resto</p>
+      <h1 class="menu-title">Menu</h1>
+      <p class="opening-hours">OUVERT 7 / 7 9AM - 9PM</p>
+    </div>
+
+   
+    <div class="menu-section">
+        <h2 class="section-title">Plat Du Jour </h2>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Lundi</span><span class="item-price">600Gds</span></div>
+              <p class="item-description">Riz colle, Salade bouillie, Salade verte, Poulet, Banane pesee *100Gds extra*</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Plat du Jour - Lundi', '600Gds', 'Riz colle, Salade bouillie, Salade verte, Poulet, Banane pesee')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Mardi</span><span class="item-price">600Gds</span></div>
+              <p class="item-description">Riz blanc, Puree de pois, Legumes, Banane pesee *100Gds extra*</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Plat du Jour - Mardi', '600Gds', 'Riz blanc, Puree de pois, Legumes, Banane pesee')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Mercredi</span><span class="item-price">1000Gds</span></div>
+              <p class="item-description">Riz colle, Salade macaroni, Salade verte, Dinde, Banane pesee *100Gds extra*</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Plat du Jour - Mercredi', '1000Gds', 'Riz colle, Salade macaroni, Salade verte, Dinde, Banane pesee')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Jeudi</span><span class="item-price">1000Gds</span></div>
+              <p class="item-description">Riz blanc, Puree de pois, Lalo, Banane pesee</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Plat du Jour - Jeudi', '1000Gds', 'Riz blanc, Puree de pois, Lalo, Banane pesee')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Vendredi</span><span class="item-price">1500Gds</span></div>
+              <p class="item-description">Riz Colle, Salade bouillie, Salade verte, Poisson</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Plat du Jour - Vendredi', '1500Gds', 'Riz Colle, Salade bouillie, Salade verte, Poisson')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+<div class="menu-section">
+  <h2 class="section-title">Volailles</h2>
+
+  <div class="menu-item">
+    <div class="menu-item-content">
+      <div class="menu-item-details">
+        <div class="item-header">
+          <span class="item-name">Pica Pollo</span>
+          <span class="item-price">Divers Prix</span>
+        </div>
+        <div class="price-options">
+          <div class="price-option">
+            <span>Petit</span>
+            <span><strong>650Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('Pica Pollo', '650Gds', 'Poulet frit croustillant', 'Petit')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="price-option">
+            <span>Moyen</span>
+            <span><strong>750Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('Pica Pollo', '750Gds', 'Poulet frit croustillant', 'Moyen')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="price-option">
+            <span>Grand</span>
+            <span><strong>1000Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('Pica Pollo', '1000Gds', 'Poulet frit croustillant', 'Grand')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-item">
+    <div class="menu-item-content">
+      <div class="menu-item-details">
+        <div class="item-header">
+          <span class="item-name">BBQ Wings</span>
+          <span class="item-price">Divers Prix</span>
+        </div>
+        <div class="price-options">
+          <div class="price-option">
+            <span>6 pièces</span>
+            <span><strong>650Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('BBQ Wings', '650Gds', 'Ailes de poulet BBQ', '6 pièces')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="price-option">
+            <span>9 pièces</span>
+            <span><strong>750Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('BBQ Wings', '750Gds', 'Ailes de poulet BBQ', '9 pièces')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="price-option">
+            <span>12 pièces</span>
+            <span><strong>1000Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('BBQ Wings', '1000Gds', 'Ailes de poulet BBQ', '12 pièces')">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-item">
+    <div class="menu-item-content">
+      <div class="menu-item-details">
+        <div class="item-header">
+          <span class="item-name">Dinde en Sauce ou Frit</span>
+          <span class="item-price">Divers Prix</span>
+        </div>
+        <div class="price-options">
+          <div class="price-option">
+            <span>En Sauce</span>
+            <span><strong>1000Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('Dinde', '1000Gds', 'Dinde en sauce', 'En Sauce')">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+          <div class="price-option">
+            <span>Frit</span>
+            <span><strong>1250Gds</strong></span>
+            <button class="add-to-cart-btn" onclick="addToCart('Dinde', '1250Gds', 'Dinde frit', 'Frit')">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+    <div class="menu-section">
+        <h2 class="section-title">Viandes</h2>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Griot</span><span class="item-price">800Gds / 1000Gds</span></div>
+              <p class="item-description">Porc frit croustillant servi avec Accra ou Banane, Pikliz, Salade</p>
+              <div class="price-options">
+                <div class="price-option">
+                  <span>Portion Standard</span>
+                  <span><strong>800Gds</strong></span>
+                  <button class="add-to-cart-btn" onclick="addToCart('Griot', '800Gds', 'Porc frit avec Accra/Banane, Pikliz, Salade', 'Standard')" aria-label="Ajouter Griot standard au panier">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Ajouter
+                  </button>
+                </div>
+                <div class="price-option">
+                  <span>Grande Portion</span>
+                  <span><strong>1000Gds</strong></span>
+                  <button class="add-to-cart-btn" onclick="addToCart('Griot', '1000Gds', 'Porc frit avec Accra/Banane, Pikliz, Salade', 'Grande portion')" aria-label="Ajouter Griot grande portion au panier">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Ajouter
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Tassot de Boeuf</span><span class="item-price">800Gds / 1000Gds</span></div>
+              <p class="item-description">Accra ou Banane, Pikliz, Salade</p>
+              <div class="price-options">
+                <div class="price-option">
+                  <span>Portion Standard</span>
+                  <span><strong>800Gds</strong></span>
+                  <button class="add-to-cart-btn" onclick="addToCart('Tassot de Boeuf', '800Gds', 'Accra ou Banane, Pikliz, Salade', 'Standard')">
+                    <i class="fas fa-plus"></i> Ajouter
+                  </button>
+                </div>
+                <div class="price-option">
+                  <span>Grande Portion</span>
+                  <span><strong>1000Gds</strong></span>
+                  <button class="add-to-cart-btn" onclick="addToCart('Tassot de Boeuf', '1000Gds', 'Accra ou Banane, Pikliz, Salade', 'Grande portion')">
+                    <i class="fas fa-plus"></i> Ajouter
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Cabrit en Sauce</span><span class="item-price">1250Gds</span></div>
+              <p class="item-description">Accra ou Banane, Pikliz, Salade</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Cabrit en Sauce', '1250Gds', 'Accra ou Banane, Pikliz, Salade')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="menu-section">
+        <h2 class="section-title">Pate Kode</h2>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Pate Poulet</span><span class="item-price">300Gds</span></div>
+              <p class="item-description">Poulet, Hotdog, oeufs</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Pate Poulet', '300Gds', 'Poulet, Hotdog, oeufs')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Pate Hareng Hotdog</span><span class="item-price">300Gds</span></div>
+              <p class="item-description">Hareng, Hotdog, oeufs</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Pate Hareng Hotdog', '300Gds', 'Hareng, Hotdog, oeufs')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Pate Jambon Fromage</span><span class="item-price">500Gds</span></div>
+              <p class="item-description">Jambon, fromage, oeufs</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Pate Jambon Fromage', '500Gds', 'Jambon, fromage, oeufs')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item-content">
+            <div class="menu-item-details">
+              <div class="item-header"><span class="item-name">Pate Combo</span><span class="item-price">600Gds</span></div>
+              <p class="item-description">Combinaison spéciale</p>
+            </div>
+            <div class="menu-item-actions">
+              <button class="add-to-cart-btn" onclick="addToCart('Pate Combo', '600Gds', 'Combinaison spéciale')">
+                <i class="fas fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="menu-section">
+      <h2 class="section-title">Autres</h2>
+      <div class="menu-item">
+        <div class="menu-item-content">
+          <div class="menu-item-details">
+            <div class="item-header">
+              <span class="item-name">Spaghetti</span>
+              <span class="item-price">Divers Prix</span>
+            </div>
+            <div class="price-options">
+              <div class="price-option">
+                <span>Spaghetti Poulet</span>
+                <span><strong>350Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Spaghetti Poulet', '350Gds', 'Spaghetti avec poulet')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="price-option">
+                <span>Spaghetti Jambon Fromage (Petit)</span>
+                <span><strong>350Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Spaghetti Jambon Fromage', '350Gds', 'Spaghetti avec jambon et fromage', 'Petit')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="price-option">
+                <span>Spaghetti Jambon Fromage (Grand)</span>
+                <span><strong>500Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Spaghetti Jambon Fromage', '500Gds', 'Spaghetti avec jambon et fromage', 'Grand')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-content">
+          <div class="menu-item-details">
+            <div class="item-header">
+              <span class="item-name">Sandwich</span>
+              <span class="item-price">Divers Prix</span>
+            </div>
+            <div class="price-options">
+              <div class="price-option">
+                <span>Sandwich Poulet</span>
+                <span><strong>400Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Sandwich Poulet', '400Gds', 'Sandwich au poulet')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="price-option">
+                <span>Sandwich Oeufs</span>
+                <span><strong>400Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Sandwich Oeufs', '400Gds', 'Sandwich aux oeufs')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <div class="price-option">
+                <span>Sandwich Jambon Fromage</span>
+                <span><strong>500Gds</strong></span>
+                <button class="add-to-cart-btn" onclick="addToCart('Sandwich Jambon Fromage', '500Gds', 'Sandwich jambon fromage')">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-content">
+          <div class="menu-item-details">
+            <div class="item-header">
+              <span class="item-name">Boulettes</span>
+              <span class="item-price">650Gds</span>
+            </div>
+            <p class="item-description">Pikliz et banane</p>
+          </div>
+          <div class="menu-item-actions">
+            <button class="add-to-cart-btn" onclick="addToCart('Boulettes', '650Gds', 'Pikliz et banane')">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-item-content">
+          <div class="menu-item-details">
+            <div class="item-header">
+              <span class="item-name">Kibby</span>
+              <span class="item-price">700Gds</span>
+            </div>
+            <p class="item-description">Spécialité libanaise</p>
+          </div>
+          <div class="menu-item-actions">
+            <button class="add-to-cart-btn" onclick="addToCart('Kibby', '700Gds', 'Spécialité libanaise')">
+              <i class="fas fa-plus"></i> Ajouter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div> 
+
+    <div class="contact-info">
+      <h3>Visitez-Nous</h3>
+      <div class="mb-6">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <i class="fas fa-map-marker-alt text-red-400 w-5 h-5"></i>
+          <span>#47 Rue Chavannes Prolongée Station Girardo</span>
+        </div>
+        <div class="flex items-center justify-center gap-2">
+          <i class="fas fa-phone text-red-400 w-5 h-5"></i>
+          <span>(509) 3752-5134</span>
+        </div>
+      </div>
+      <div class="social-links">
+        <a href="https://www.instagram.com/lylys_bar_resto" target="_blank" rel="noopener noreferrer" class="text-pink-400">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
+        <a href="https://www.facebook.com/share/19x8dyLk9J" target="_blank" rel="noopener noreferrer" class="text-blue-400">
+          <i class="fab fa-facebook"></i> Facebook
+        </a>
+        <a href="https://wa.me/50937525134" target="_blank" rel="noopener noreferrer" class="text-green-400">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <!-- Decorative Emojis -->
+    <div class="decorative-image empanada">🥟</div>
+    <div class="decorative-image goat">🐐</div>
+    <div class="decorative-image pig">🐖</div>
+    <div class="decorative-image beer">🍺</div>
+    <div class="decorative-image cow">🐄</div>
+    <div class="decorative-image chicken">🐔</div>
+    <div class="decorative-image fish">🐟</div>
+    <div class="decorative-image crab">🦀</div>
+    <div class="decorative-image tomato">🍅</div>
+    <div class="decorative-image leaf">🌿</div>
+    <div class="decorative-image spaghetti">🍝</div>
+    <div class="decorative-image steak">🥩</div>
+    <div class="decorative-image drink">🍹</div>
+    <div class="decorative-image soda">🥤</div>
+  </div>
+  <!-- Shopping Cart Toggle Button -->
+  <button class="cart-toggle" onclick="toggleCart()" aria-label="Ouvrir le panier" role="button" tabindex="0">
+    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+    <span class="cart-count" id="cart-count" aria-live="polite">0</span>
+  </button>
+
+  <!-- Shopping Cart Sidebar -->
+  <div class="cart-sidebar" id="cart-sidebar" role="dialog" aria-labelledby="cart-title" aria-modal="true">
+    <div class="cart-header">
+      <h3 id="cart-title">Votre Commande</h3>
+      <button class="cart-close" onclick="toggleCart()" aria-label="Fermer le panier">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    
+    <div id="cart-items" role="region" aria-label="Articles dans le panier">
+      <div class="empty-cart">
+        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+        <p>Votre panier est vide</p>
+      </div>
+    </div>
+    
+    <div class="cart-total" id="cart-total" style="display: none;">
+      <div class="total-amount" id="total-amount">0 Gds</div>
+      <button class="checkout-btn" onclick="showCheckoutForm()">Commander Maintenant</button>
+    </div>
+    
+    <!-- Checkout Form -->
+    <div class="checkout-form" id="checkout-form">
+      <h4>Informations de Livraison</h4>
+      <form id="order-form">
+        <div class="form-group">
+          <label for="customer-name">Nom Complet *</label>
+          <input type="text" id="customer-name" name="customerName" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="customer-phone">Numéro de Téléphone *</label>
+          <input type="tel" id="customer-phone" name="customerPhone" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="delivery-address">Adresse de Livraison *</label>
+          <textarea id="delivery-address" name="deliveryAddress" required placeholder="Adresse complète avec détails"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="special-instructions">Instructions Spéciales</label>
+          <textarea id="special-instructions" name="specialInstructions" placeholder="Allergies, préférences, etc."></textarea>
+        </div>
+        
+        <div class="payment-methods">
+          <h5>Méthode de Paiement</h5>
+          
+          <div class="payment-method" onclick="selectPaymentMethod('cash')">
+            <input type="radio" name="paymentMethod" value="cash" id="payment-cash">
+            <label for="payment-cash">
+              <i class="fas fa-money-bill-wave"></i> Paiement à la Livraison (Cash)
+            </label>
+          </div>
+          
+          <div class="payment-method" onclick="selectPaymentMethod('moncash')">
+            <input type="radio" name="paymentMethod" value="moncash" id="payment-moncash">
+            <label for="payment-moncash">
+              <i class="fas fa-mobile-alt"></i> MonCash
+            </label>
+          </div>
+          
+          <div class="moncash-info" id="moncash-info">
+            <p><strong>Paiement MonCash:</strong></p>
+            <p>1. Cliquez sur "Finaliser la Commande"</p>
+            <p>2. Vous serez redirigé vers MonCash</p>
+            <p>3. Entrez votre PIN MonCash pour confirmer</p>
+            <p>4. Nous recevrons votre commande automatiquement</p>
+          </div>
+        </div>
+        
+        <button type="submit" class="checkout-btn">Finaliser la Commande</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Include MonCash Integration -->
+  <script src="moncash_integration.js"></script>
+  
+  <script>
+    // Shopping Cart Management
+    let cart = [];
+    let cartTotal = 0;
+
+    // Toggle cart sidebar
+    function toggleCart() {
+      const sidebar = document.getElementById('cart-sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    // Add item to cart
+    function addToCart(itemName, itemPrice, itemDescription = '', selectedOption = '') {
+      const price = parseInt(itemPrice.replace('Gds', '').replace(',', ''));
+      
+      const existingItemIndex = cart.findIndex(item => 
+        item.name === itemName && item.selectedOption === selectedOption
+      );
+      
+      if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push({
+          id: Date.now(),
+          name: itemName,
+          price: price,
+          description: itemDescription,
+          selectedOption: selectedOption,
+          quantity: 1
+        });
+      }
+      
+      updateCartDisplay();
+      showCartNotification(itemName);
+    }
+
+    // Remove item from cart
+    function removeFromCart(itemId) {
+      cart = cart.filter(item => item.id !== itemId);
+      updateCartDisplay();
+    }
+
+    // Update item quantity
+    function updateQuantity(itemId, newQuantity) {
+      if (newQuantity <= 0) {
+        removeFromCart(itemId);
+        return;
+      }
+      
+      const item = cart.find(item => item.id === itemId);
+      if (item) {
+        item.quantity = newQuantity;
+        updateCartDisplay();
+      }
+    }
+
+    // Update cart display
+    function updateCartDisplay() {
+      const cartCount = document.getElementById('cart-count');
+      const cartItems = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
+      const totalAmount = document.getElementById('total-amount');
+      
+      // Update cart count
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartCount.textContent = totalItems;
+      cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
+      
+      // Calculate total
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <div class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Votre panier est vide</p>
+          </div>
+        `;
+        cartTotal.style.display = 'none';
+      } else {
+        cartItems.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              ${item.selectedOption ? `<div style="font-size: 0.8rem; color: #666;">${item.selectedOption}</div>` : ''}
+              <div class="cart-item-price">${item.price} Gds</div>
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" class="quantity-input" value="${item.quantity}" 
+                       onchange="updateQuantity(${item.id}, parseInt(this.value))" min="1">
+                <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <button class="remove-btn" onclick="removeFromCart(${item.id})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `).join('');
+        
+        totalAmount.textContent = `${total.toLocaleString()} Gds`;
+        cartTotal.style.display = 'block';
+      }
+    }
+
+    // Show checkout form
+    function showCheckoutForm() {
+      if (cart.length === 0) return;
+      
+      const checkoutForm = document.getElementById('checkout-form');
+      checkoutForm.style.display = 'block';
+      checkoutForm.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Select payment method
+    function selectPaymentMethod(method) {
+      document.querySelectorAll('.payment-method').forEach(pm => {
+        pm.classList.remove('selected');
+      });
+      
+      event.currentTarget.classList.add('selected');
+      document.getElementById(`payment-${method}`).checked = true;
+      
+      const moncashInfo = document.getElementById('moncash-info');
+      if (method === 'moncash') {
+        moncashInfo.classList.add('show');
+      } else {
+        moncashInfo.classList.remove('show');
+      }
+    }
+
+    // Show cart notification
+    function showCartNotification(itemName) {
+      // Simple notification - you can enhance this
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 2000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+      `;
+      notification.innerHTML = `<i class="fas fa-check"></i> ${itemName} ajouté au panier`;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 2000);
+    }
+
+    // Handle order form submission
+    document.getElementById('order-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const paymentMethod = formData.get('paymentMethod');
+      
+      if (!paymentMethod) {
+        alert('Veuillez sélectionner une méthode de paiement');
+        return;
+      }
+      
+      const orderData = {
+        customerName: formData.get('customerName'),
+        customerPhone: formData.get('customerPhone'),
+        deliveryAddress: formData.get('deliveryAddress'),
+        specialInstructions: formData.get('specialInstructions'),
+        paymentMethod: paymentMethod,
+        items: cart,
+        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        orderDate: new Date().toISOString()
+      };
+      
+      if (paymentMethod === 'moncash') {
+        processMoncashPayment(orderData);
+      } else {
+        processCashOrder(orderData);
+      }
+    });
+
+    // Process MonCash payment
+    async function processMoncashPayment(orderData) {
+      const checkoutBtn = document.querySelector('.checkout-btn');
+      const originalText = checkoutBtn.textContent;
+      
+      try {
+        // Show loading state
+        checkoutBtn.textContent = 'Connexion à MonCash...';
+        checkoutBtn.disabled = true;
+        
+        // Send to backend for MonCash processing
+        const response = await fetch('moncash_backend.php?action=create_payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Store order for verification later
+          localStorage.setItem('pending_order', JSON.stringify({
+            ...orderData,
+            orderId: result.data.order_id,
+            paymentId: result.data.payment_id
+          }));
+          
+          // Redirect to MonCash
+          if (result.data.payment_url) {
+            window.location.href = result.data.payment_url;
+          } else {
+            throw new Error('No payment URL received');
+          }
+        } else {
+          throw new Error(result.error || 'Failed to create payment');
+        }
+        
+      } catch (error) {
+        console.error('MonCash payment error:', error);
+        
+        // Restore button state
+        checkoutBtn.textContent = originalText;
+        checkoutBtn.disabled = false;
+        
+        // Show user-friendly error
+        const errorMsg = 'Erreur de connexion à MonCash. Veuillez vérifier votre connexion internet ou essayer le paiement à la livraison.';
+        
+        if (confirm(errorMsg + '\n\nVoulez-vous continuer avec le paiement à la livraison?')) {
+          orderData.paymentMethod = 'cash';
+          processCashOrder(orderData);
+        }
+      }
+    }
+
+    // Process cash order
+    async function processCashOrder(orderData) {
+      const checkoutBtn = document.querySelector('.checkout-btn');
+      const originalText = checkoutBtn.textContent;
+      
+      try {
+        // Show loading state
+        checkoutBtn.textContent = 'Envoi en cours...';
+        checkoutBtn.disabled = true;
+        
+        // Send to backend
+        const response = await fetch('moncash_backend.php?action=process_cash_order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Clear cart and show success
+          cart = [];
+          updateCartDisplay();
+          
+          // Show success message
+          showOrderSuccess(orderData, result.order_id);
+          
+          // Open WhatsApp notification
+          if (result.notification_url) {
+            setTimeout(() => window.open(result.notification_url, '_blank'), 1000);
+          }
+          
+          // Close cart and reset form
+          setTimeout(() => {
+            toggleCart();
+            document.getElementById('checkout-form').style.display = 'none';
+            document.getElementById('order-form').reset();
+          }, 2000);
+          
+        } else {
+          throw new Error(result.error || 'Failed to process order');
+        }
+        
+      } catch (error) {
+        console.error('Cash order error:', error);
+        
+        // Restore button state
+        checkoutBtn.textContent = originalText;
+        checkoutBtn.disabled = false;
+        
+        // Fallback to direct WhatsApp
+        const fallbackMessage = `🍽️ Commande Lyly's (Paiement à la livraison)\n\n` +
+          `👤 ${orderData.customerName}\n📱 ${orderData.customerPhone}\n📍 ${orderData.deliveryAddress}\n\n` +
+          `Commande:\n${orderData.items.map(item => 
+            `• ${item.name}${item.selectedOption ? ` (${item.selectedOption})` : ''} x${item.quantity} = ${(item.price * item.quantity).toLocaleString()} Gds`
+          ).join('\n')}\n\n` +
+          `💰 Total: ${orderData.total.toLocaleString()} Gds (à payer à la livraison)\n` +
+          `📝 Instructions: ${orderData.specialInstructions || 'Aucune'}`;
+        
+        const whatsappUrl = `https://wa.me/50937525134?text=${encodeURIComponent(fallbackMessage)}`;
+        
+        if (confirm('Connexion au serveur impossible. Voulez-vous envoyer votre commande directement via WhatsApp?')) {
+          // Clear cart and proceed
+          cart = [];
+          updateCartDisplay();
+          
+          window.open(whatsappUrl, '_blank');
+          
+          // Show success message
+          showOrderSuccess(orderData, 'DIRECT-' + Date.now());
+          
+          // Close cart and reset form
+          setTimeout(() => {
+            toggleCart();
+            document.getElementById('checkout-form').style.display = 'none';
+            document.getElementById('order-form').reset();
+          }, 2000);
+        }
+      }
+    }
+    
+    // Show order success message
+    function showOrderSuccess(orderData, orderId) {
+      const successMessage = document.createElement('div');
+      successMessage.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #d4edda;
+        border: 2px solid #28a745;
+        border-radius: 12px;
+        padding: 30px;
+        z-index: 3000;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      `;
+      
+      successMessage.innerHTML = `
+        <div style="color: #155724;">
+          <i class="fas fa-check-circle" style="font-size: 3rem; color: #28a745; margin-bottom: 15px;"></i>
+          <h3>Commande Confirmée!</h3>
+          <p><strong>Référence:</strong> ${orderId}</p>
+          <p><strong>Client:</strong> ${orderData.customerName}</p>
+          <p><strong>Total:</strong> ${orderData.total.toLocaleString()} Gds</p>
+          <p style="margin-top: 15px; font-size: 0.9rem;">Nous vous contacterons bientôt pour organiser la livraison.</p>
+          <button onclick="this.parentElement.parentElement.remove()" 
+                  style="margin-top: 15px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            Fermer
+          </button>
+        </div>
+      `;
+      
+      document.body.appendChild(successMessage);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (successMessage.parentElement) {
+          successMessage.remove();
+        }
+      }, 5000);
+    }
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+</body>
+</html>
