@@ -49,6 +49,12 @@ class TradingConfig:
         self.LOG_TO_FILE = os.getenv('LOG_TO_FILE', 'true').lower() == 'true'
         self.LOG_TRADES = os.getenv('LOG_TRADES', 'true').lower() == 'true'
         
+        # Agent Configuration
+        self.USE_PATTERN_AGENT = os.getenv('USE_PATTERN_AGENT', 'true').lower() == 'true'
+        self.AGENT_MIN_CONFIDENCE = float(os.getenv('AGENT_MIN_CONFIDENCE', '0.75'))
+        self.AGENT_MAX_PATTERNS = int(os.getenv('AGENT_MAX_PATTERNS', '10'))
+        self.AGENT_CACHE_DURATION = int(os.getenv('AGENT_CACHE_DURATION', '900'))
+        
         # Bybit API URLs
         if self.BYBIT_TESTNET:
             self.BYBIT_HTTP_URL = "https://api-testnet.bybit.com"
@@ -107,7 +113,10 @@ class TradingConfig:
             'take_profit_ratio': self.TAKE_PROFIT_RATIO,
             'daily_loss_limit': self.DAILY_LOSS_LIMIT,
             'alerts_configured': bool(self.DISCORD_WEBHOOK_URL or self.TELEGRAM_BOT_TOKEN),
-            'http_url': self.BYBIT_HTTP_URL
+            'http_url': self.BYBIT_HTTP_URL,
+            'pattern_agent_enabled': self.USE_PATTERN_AGENT,
+            'agent_min_confidence': self.AGENT_MIN_CONFIDENCE,
+            'agent_max_patterns': self.AGENT_MAX_PATTERNS
         }
     
     def setup_logging(self):
@@ -193,6 +202,10 @@ def validate_setup():
     print(f"  Max Risk/Trade: {safe_config['max_risk_per_trade']*100:.1f}%")
     print(f"  Max Positions: {safe_config['max_concurrent_positions']}")
     print(f"  Daily Loss Limit: ${safe_config['daily_loss_limit']}")
+    print(f"\n🤖 Agent Configuration:")
+    print(f"  Pattern Agent: {'✅ Enabled' if safe_config['pattern_agent_enabled'] else '❌ Disabled'}")
+    print(f"  Min Confidence: {safe_config['agent_min_confidence']*100:.0f}%")
+    print(f"  Max Patterns: {safe_config['agent_max_patterns']}")
     
     # Show validation results
     print("\n🔍 Validation Results:")

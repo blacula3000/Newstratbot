@@ -5,6 +5,7 @@ import time
 import yfinance as yf
 import pandas as pd
 import logging
+from agent_integration import QuantPatternAnalystAgent
 
 # Set up logging
 logging.basicConfig(
@@ -31,6 +32,13 @@ class TradingBot:
         self.pattern_history = []  # Store detected patterns
         self._historical_data = {}
         self.active_trades = []
+        
+        # Initialize Quant Pattern Analyst Agent
+        self.pattern_agent = QuantPatternAnalystAgent({
+            'min_confidence': 0.75,  # Minimum confidence for pattern signals
+            'max_patterns': 10  # Maximum patterns to track per symbol
+        })
+        self.use_agent_patterns = self.config.get('use_agent_patterns', True)
 
     def get_current_price(self, symbol):
         """Get current price for a symbol."""
@@ -132,8 +140,35 @@ class TradingBot:
         return 'Unknown'
 
     def detect_patterns(self, df):
-        """Enhanced pattern detection with multiple pattern types"""
+        """Enhanced pattern detection with multiple pattern types and agent integration"""
         patterns = []
+        
+        # Use agent for advanced pattern detection if enabled
+        if self.use_agent_patterns and hasattr(self, 'pattern_agent'):
+            try:
+                # Get agent-detected patterns
+                agent_analysis = self.pattern_agent.analyze_patterns(
+                    symbol=df.attrs.get('symbol', 'UNKNOWN'),
+                    df=df,
+                    timeframe=self.timeframe
+                )
+                
+                # Add agent patterns to the list
+                for agent_pattern in agent_analysis.get('patterns', []):
+                    patterns.append({
+                        'time': datetime.now(),
+                        'type': agent_pattern.get('type', 'Unknown'),
+                        'confidence': agent_pattern.get('confidence', 0.5),
+                        'action': self._determine_action_from_pattern(agent_pattern),
+                        'source': 'agent',
+                        'details': agent_pattern
+                    })
+                    
+                logger.info(f"Agent detected {len(agent_analysis.get('patterns', []))} patterns")
+            except Exception as e:
+                logger.warning(f"Agent pattern detection failed, falling back to basic: {e}")
+        
+        # Original pattern detection logic
         for i in range(2, len(df)):
             candle1, candle2, candle3 = df.iloc[i-2], df.iloc[i-1], df.iloc[i]
             
@@ -149,7 +184,8 @@ class TradingBot:
                     'time': current_time,
                     'type': '2-2 Bullish Reversal',
                     'confidence': 0.8,
-                    'action': 'buy'
+                    'action': 'buy',
+                    'source': 'basic'
                 })
 
             if c2_type == '2u' and c3_type == '2d':
@@ -157,7 +193,8 @@ class TradingBot:
                     'time': current_time,
                     'type': '2-2 Bearish Reversal',
                     'confidence': 0.8,
-                    'action': 'sell'
+                    'action': 'sell',
+                    'source': 'basic'
                 })
 
             if c3_type == '1':
@@ -165,7 +202,8 @@ class TradingBot:
                     'time': current_time,
                     'type': 'Inside Bar',
                     'confidence': 0.6,
-                    'action': 'hold'
+                    'action': 'hold',
+                    'source': 'basic'
                 })
 
             if c3_type == '3':
@@ -173,10 +211,21 @@ class TradingBot:
                     'time': current_time,
                     'type': 'Outside Bar',
                     'confidence': 0.7,
-                    'action': 'hold'
+                    'action': 'hold',
+                    'source': 'basic'
                 })
 
         return patterns
+    
+    def _determine_action_from_pattern(self, pattern):
+        """Determine trading action based on pattern type"""
+        pattern_type = pattern.get('type', '').lower()
+        if any(word in pattern_type for word in ['bullish', 'cup', 'ascending', 'bottom']):
+            return 'buy'
+        elif any(word in pattern_type for word in ['bearish', 'head and shoulders', 'descending', 'top']):
+            return 'sell'
+        else:
+            return 'hold'
 
     def get_historical_data(self, symbol, lookback_periods=100):
         """Enhanced historical data fetching with multiple sources"""

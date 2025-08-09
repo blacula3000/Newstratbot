@@ -77,15 +77,73 @@ def get_status():
 
 @app.route('/api/patterns')
 def get_patterns():
-    """Get recent pattern history."""
+    """Get recent pattern history including agent-detected patterns."""
     global bot
     
     if not bot:
-        return jsonify({'patterns': []})
+        return jsonify({'patterns': [], 'agent_patterns': []})
     
     try:
+        # Separate patterns by source
+        basic_patterns = [p for p in bot.pattern_history if p.get('source') != 'agent']
+        agent_patterns = [p for p in bot.pattern_history if p.get('source') == 'agent']
+        
         return jsonify({
-            'patterns': bot.pattern_history
+            'patterns': bot.pattern_history,
+            'basic_patterns': basic_patterns,
+            'agent_patterns': agent_patterns,
+            'total_patterns': len(bot.pattern_history),
+            'agent_enabled': bot.use_agent_patterns if hasattr(bot, 'use_agent_patterns') else False
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/agent/status')
+def get_agent_status():
+    """Get status of the quant-pattern-analyst agent."""
+    global bot
+    
+    if not bot:
+        return jsonify({'agent_active': False})
+    
+    try:
+        if hasattr(bot, 'pattern_agent'):
+            return jsonify({
+                'agent_active': True,
+                'agent_name': 'quant-pattern-analyst',
+                'min_confidence': bot.pattern_agent.min_pattern_confidence,
+                'cached_symbols': list(bot.pattern_agent.pattern_cache.keys()),
+                'last_analysis': bot.pattern_agent.last_analysis_time.isoformat() if bot.pattern_agent.last_analysis_time else None
+            })
+        else:
+            return jsonify({'agent_active': False})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/api/agent/analyze', methods=['POST'])
+def analyze_with_agent():
+    """Trigger agent analysis for a specific symbol."""
+    global bot
+    
+    if not bot or not hasattr(bot, 'pattern_agent'):
+        return jsonify({'status': 'error', 'message': 'Agent not available'})
+    
+    try:
+        symbol = request.json.get('symbol')
+        if not symbol:
+            return jsonify({'status': 'error', 'message': 'Symbol required'})
+        
+        # Get historical data for the symbol
+        df = bot.get_historical_data(symbol)
+        if df.empty:
+            return jsonify({'status': 'error', 'message': 'No data available for symbol'})
+        
+        # Run agent analysis
+        analysis = bot.pattern_agent.analyze_patterns(symbol, df, bot.timeframe)
+        
+        return jsonify({
+            'status': 'success',
+            'analysis': analysis
         })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
