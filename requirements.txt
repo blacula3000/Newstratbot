@@ -14,3 +14,4 @@ python-engineio==4.7.1
 eventlet==0.33.3
 typing-extensions==4.8.0
 schedule==1.2.0
+webull==0.1.1
