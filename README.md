@@ -74,33 +74,55 @@ The web dashboard includes:
    python app.py
    ```
 
-## 🤖 Multi-Agent Architecture
+## 🤖 Enhanced Event-Driven Multi-Agent Architecture
 
-The bot uses a sophisticated multi-agent system where specialized agents work together:
+The system implements a sophisticated **Event-Driven Multi-Agent Architecture** for institutional-grade trading performance:
 
-### Agent Hierarchy
+### Event-Driven System
+- **Enhanced Data Pipeline**: Real-time multi-timeframe data ingestion and distribution
+- **Event Processing**: Immediate response to market events rather than batch processing  
+- **Asynchronous Operations**: Non-blocking data processing and analysis
+- **State Management**: Persistent tracking of market conditions and trading states
+
+### Specialized Trading Agents
+
+#### Core Analysis Agents
+- **Trigger Line Agent**: Advanced STRAT 2u/2d/3 breakout detection with momentum validation
+- **FTFC Continuity Agent**: Full timeframe continuity analysis for higher probability trades
+- **Reversal Setup Agent**: Exhaustion pattern detection with 7 reversal pattern types
+- **Magnet Level Agent**: Comprehensive price level magnetism analysis (10 level types)
+- **Volatility Agent**: Advanced volatility analysis with IV rank integration and GARCH modeling
+
+#### Risk & Execution Agents  
+- **Position Sizing Agent**: Dynamic position sizing with Kelly Criterion and volatility normalization
+- **Entry Timing Agent**: Precise entry logic with market microstructure analysis
+- **Exit Strategy Agent**: Dynamic exit management with 10 exit trigger types
+- **Trade Director**: Master orchestration system with ensemble decision making
+
+### Agent Architecture Flow
 ```
-        Supervisor Agent (Orchestrator)
-                    │
-    ┌───────────────┼───────────────┐
-    │               │               │
-Scenario Agent  Confluence Agent  Trigger Agent
-    │               │               │
-    └───────────────┼───────────────┘
-                    │
-            Trade Director Agent
-                    │
-            Execution Engine
+Market Data → Enhanced Data Pipeline → Specialized Agents → Trade Director → Execution
+                      ↓
+    ┌─────────────────┼─────────────────┐
+    │                 │                 │
+Trigger Line     Volatility        Reversal Setup
+    │                 │                 │
+FTFC Continuity  Position Sizing   Magnet Level  
+    │                 │                 │
+Entry Timing     Exit Strategy     Trade Director
+    │                 │                 │
+    └─────────────────┼─────────────────┘
+                      ↓
+            Ensemble Decision Making
 ```
 
-### Core Agents
-1. **Supervisor Agent**: Coordinates all sub-agents and makes final decisions
-2. **Scenario Classifier**: Identifies STRAT patterns (1s, 2s, 3s, combos)
-3. **Timeframe Confluence**: Analyzes alignment across multiple timeframes
-4. **Trigger Line Monitor**: Validates entry/exit signals
-5. **Trade Director**: Synthesizes signals and manages risk
+### Multi-Agent Ensemble Features
+- **Weighted Consensus**: Each agent contributes confidence-weighted analysis
+- **Real-time Coordination**: Agents communicate and share insights continuously
+- **Ensemble Decision Making**: Multiple agents validate signals for higher probability trades
+- **Dynamic Risk Management**: Multi-layer risk controls across all agents
 
-For detailed agent documentation, see [AGENT_ARCHITECTURE.md](AGENT_ARCHITECTURE.md)
+For detailed technical documentation, see [AGENT_ARCHITECTURE_GUIDE.md](AGENT_ARCHITECTURE_GUIDE.md)
 
 ## 📊 Technical Details
 
@@ -121,7 +143,9 @@ For detailed agent documentation, see [AGENT_ARCHITECTURE.md](AGENT_ARCHITECTURE
 - **Frontend**: Modern HTML5 + CSS3 + JavaScript
 - **Data Analysis**: Pandas + NumPy + TA-Lib
 - **Trading APIs**: CCXT, Alpaca, PyBit
-- **Agent System**: Custom multi-agent framework
+- **Agent System**: Event-driven multi-agent framework with ensemble decision making
+- **Volatility Modeling**: GARCH, Parkinson, Garman-Klass estimators
+- **Risk Management**: Kelly Criterion, volatility targeting, correlation analysis
 - **Logging**: Python logging with real-time streaming
 
 ## 🌐 Web Interface Features
